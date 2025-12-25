@@ -1,12 +1,33 @@
 // src/components/BottomNav.jsx
-function BottomNav() {
+
+function BottomNav({ activeTab, onTabChange }) {
   return (
-    <nav className="bottom-nav">
-      <button className="bottom-nav-btn">홈</button>
-      <button className="bottom-nav-btn active">단어장</button>
-      <button className="bottom-nav-btn">복습</button>
-      <button className="bottom-nav-btn">기타</button>
-    </nav>
+    <div className="bottom-nav">
+      <button
+        className={`bottom-nav-btn ${activeTab === 'home' ? 'active' : ''}`}
+        onClick={() => onTabChange('home')}
+      >
+        홈
+      </button>
+      <button
+        className={`bottom-nav-btn ${activeTab === 'wordlist' ? 'active' : ''}`}
+        onClick={() => onTabChange('wordlist')}
+      >
+        단어장
+      </button>
+      <button
+        className={`bottom-nav-btn ${activeTab === 'review' ? 'active' : ''}`}
+        onClick={() => onTabChange('review')}
+      >
+        복습
+      </button>
+      <button
+        className={`bottom-nav-btn ${activeTab === 'more' ? 'active' : ''}`}
+        onClick={() => onTabChange('more')}
+      >
+        기타
+      </button>
+    </div>
   );
 }
 

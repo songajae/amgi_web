@@ -26,7 +26,6 @@ body {
 }
 
 /* ===== 상단 상태바 ===== */
-
 .status-bar {
   height: 44px;
   padding: 8px 16px;
@@ -47,7 +46,6 @@ body {
 }
 
 /* ===== 상단 타이틀 ===== */
-
 .top-header {
   padding: 8px 20px 4px;
   display: flex;
@@ -78,7 +76,6 @@ body {
 }
 
 /* ===== 메인 콘텐츠 ===== */
-
 .main-content {
   flex: 1;
   padding: 8px 16px 12px;
@@ -89,7 +86,6 @@ body {
 }
 
 /* ===== 단어 카드 ===== */
-
 .word-card {
   background: #313131;
   border-radius: 20px;
@@ -123,7 +119,6 @@ body {
 }
 
 /* 리스트: 남은 높이 모두 사용, 내부 스크롤 */
-
 .word-list {
   flex: 1;
   display: flex;
@@ -161,7 +156,6 @@ body {
 }
 
 /* 카드 푸터: 페이지 표시 */
-
 .word-card-footer {
   height: 28px;
   display: flex;
@@ -189,7 +183,6 @@ body {
 }
 
 /* ===== 하단 네비게이션 ===== */
-
 .bottom-nav {
   height: 64px;
   background: #313131;
@@ -212,7 +205,6 @@ body {
 }
 
 /* ===== 챕터 선택 모달 ===== */
-
 .chapter-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -235,7 +227,8 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding-top: 72px; /* 윗 라인 아래부터 리스트 시작 */
+  padding-top: 60px; /* 윗 라인 아래부터 리스트 시작 (72px -> 60px로 줄임) */
+  padding-bottom: 70px; /* 아래 공간 확보 */
 }
 
 /* 윗 라인: 박스 폭 기준 중앙 정렬 */
@@ -243,7 +236,7 @@ body {
   content: '';
   position: absolute;
   left: 50%;
-  top: 48px;
+  top: 42px; /* 48px -> 42px로 줄임 */
   transform: translateX(-50%);
   width: calc(100% - 60px); /* 양쪽 여백 30px 정도 */
   border-top: 1px solid #000000;
@@ -264,10 +257,10 @@ body {
 .chapter-modal-list {
   flex: 1;
   overflow-y: auto;
-  padding: 0 40px;
+  padding: 8px 40px; /* 0 -> 8px 위아래 여백 추가 */
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px; /* 10px -> 6px로 줄임 */
 }
 
 /* 한 줄 챕터 항목 */
@@ -277,9 +270,10 @@ body {
   background: transparent;
   color: #000000;
   text-align: left;
-  font-size: 24px;
+  font-size: 22px; /* 24px -> 22px로 살짝 줄임 */
   padding: 0;
   cursor: pointer;
+  line-height: 1.3; /* 줄 간격 설정 */
 }
 
 .chapter-modal-item.active {
@@ -317,9 +311,751 @@ body {
 }
 
 /* ===== 반응형 ===== */
-
 @media (min-width: 800px) {
   .word-card {
     max-width: 900px;
   }
+}
+
+/* ===== 홈 화면 ===== */
+.home-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 플래시카드 - 남은 공간 모두 사용 */
+.flashcard {
+  background: #313131;
+  border-radius: 20px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.flashcard-word {
+  color: #ffffff;
+  font-size: 72px;
+  font-weight: 400;
+  text-align: center;
+  margin: 20px 0 10px 0;
+  flex-shrink: 0;
+}
+
+.flashcard-meanings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.flashcard-meaning {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.pos-tag {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.flashcard-example {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.example-en {
+  color: #d6d6d6;
+  font-size: 18px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.example-ko {
+  color: #d6d6d6;
+  font-size: 15px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.flashcard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 16px;
+  flex-shrink: 0;
+}
+
+.nav-btn {
+  border: none;
+  background: transparent;
+  color: #ffffffaa;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.nav-btn:disabled {
+  color: #555555;
+  cursor: default;
+}
+
+.word-indicator {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* 유튜브 섹션 - 고정 높이 */
+.youtube-section {
+  background: #282626;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.youtube-link {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.youtube-thumbnail {
+  flex-shrink: 0;
+  width: 168px;
+  height: 94px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.youtube-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.youtube-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.youtube-title {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* 설정 버튼 */
+.settings-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* 설정 패널 */
+.settings-panel {
+  position: absolute;
+  top: 50px;
+  right: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  min-width: 200px;
+}
+
+.setting-item {
+  margin-bottom: 12px;
+  color: #000000;
+  font-size: 14px;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-item label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-item input[type="checkbox"] {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+}
+
+.setting-item input[type="range"] {
+  width: 100%;
+}
+
+/* 플래시카드 위치 조정 */
+.flashcard {
+  position: relative;
+}
+
+
+/* ===== 복습 화면 ===== */
+.review-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 복습 플래시카드 - 전체 공간 사용 */
+.review-flashcard {
+  width: 100%;
+  max-width: 700px;
+  height: 100%;
+}
+
+/* Level 타이틀 버튼 (왼쪽 상단) */
+.level-title-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 10;
+  padding: 0;
+}
+
+/* 설정 버튼 (오른쪽 상단) */
+.settings-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* 랜덤 버튼 (오른쪽 상단, 설정 버튼 왼쪽) */
+.random-btn {
+  position: absolute;
+  top: 16px;
+  right: 56px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  padding: 4px 8px;
+}
+
+/* 설정 패널 */
+.settings-panel {
+  position: absolute;
+  top: 50px;
+  right: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  min-width: 200px;
+}
+
+.setting-item {
+  margin-bottom: 12px;
+  color: #000000;
+  font-size: 14px;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-item label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-item input[type="checkbox"] {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+}
+
+.setting-item input[type="range"] {
+  width: 100%;
+}
+
+.setting-item select {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* 복습 화면 예문 위치 조정 */
+.review-example {
+  position: absolute;
+  top: 75%;
+  left: 16px;
+  right: 16px;
+  transform: translateY(-50%);
+}
+
+/* 챕터 끝 다이얼로그 */
+.end-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.end-dialog {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 300px;
+  max-width: 80%;
+  text-align: center;
+}
+
+.end-dialog h3 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  color: #000000;
+}
+
+.end-dialog p {
+  margin: 0 0 24px 0;
+  font-size: 16px;
+  color: #333333;
+}
+
+.end-dialog-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.end-dialog-buttons button {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.end-dialog-buttons button:first-child {
+  background: #e0e0e0;
+  color: #000000;
+}
+
+.end-dialog-buttons button:last-child {
+  background: #fe623f;
+  color: #ffffff;
+}
+
+/* 플래시카드 위치 조정 */
+.flashcard {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.review-flashcard {
+  cursor: pointer;
+}
+
+/* 복습 화면 컨테이너 */
+.review-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  touch-action: pan-y;
+}
+
+/* 랜덤 버튼 텍스트 스타일 */
+.random-btn-text {
+  position: absolute;
+  top: 16px;
+  right: 56px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 10;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+/* 예문을 네비게이션 아래에 배치 */
+.flashcard-example-below {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.flashcard-example-below .example-en {
+  color: #d6d6d6;
+  font-size: 16px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.flashcard-example-below .example-ko {
+  color: #d6d6d6;
+  font-size: 14px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+/* 뜻 먼저 모드일 때 스타일 */
+.meanings-first {
+  margin-top: 80px;
+}
+
+/* 복습 플래시카드 레이아웃 조정 */
+.review-flashcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 60px;
+}
+
+.review-flashcard .flashcard-word {
+  margin: 40px 0 20px 0;
+}
+
+.review-flashcard .flashcard-meanings {
+  margin-bottom: 20px;
+}
+
+.review-flashcard .flashcard-nav {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+
+/* ===== About 화면 ===== */
+.about-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.about-content {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.about-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.about-title {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+}
+
+.about-description {
+  color: #d6d6d6;
+  font-size: 16px;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #313131;
+  border-radius: 12px;
+}
+
+.about-label {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.about-value {
+  color: #d6d6d6;
+  font-size: 16px;
+}
+
+.about-email-btn {
+  background: transparent;
+  border: none;
+  color: #fe623f;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.about-email-btn:hover {
+  color: #ff7a5c;
+}
+
+.about-footer {
+  color: #888888;
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+}
+
+/* 표시 모드 선택 버튼 */
+.display-mode-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: #313131;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn.active {
+  background: #fe623f;
+  border-color: #fe623f;
+  font-weight: 600;
+}
+
+/* 단어 리스트 아이템 레이아웃 */
+.wordlist-item {
+  display: flex;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wordlist-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+
+.wordlist-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+
+.wordlist-word {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.wordlist-meanings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wordlist-meaning {
+  font-size: 14px;
+  color: #d6d6d6;
+  line-height: 1.4;
+}
+
+.pos-tag-small {
+  color: #fe623f;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* ===== 단어장 화면 ===== */
+.wordlist-settings-btn {
+  position: fixed;
+  top: 20px;
+  right: 56px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 100;
+  color: #ffffff;
+}
+
+.wordlist-settings-panel {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  min-width: 200px;
+}
+
+.wordlist-wrap {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wordlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.header-label {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.header-value {
+  color: #fe623f;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wordlist-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wordlist-table tbody tr {
+  border-bottom: 1px solid #444444;
+}
+
+.wordlist-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.word-cell {
+  padding: 14px 12px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  width: 35%;
+  vertical-align: middle;
+}
+
+.meaning-cell {
+  padding: 14px 12px;
+  color: #d6d6d6;
+  font-size: 14px;
+  width: 65%;
+  vertical-align: middle;
+  line-height: 1.5;
+}
+
+.wordlist-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.page-btn {
+  background: #313131;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.page-btn:disabled {
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.chapter-btn {
+  flex: 1;
+  background: #fe623f;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
 }

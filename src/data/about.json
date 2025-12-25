@@ -1,0 +1,12 @@
+{
+  "version": "0.1",
+  "developer": {
+    "name": "송아재",
+    "email": "songajae@gmail.com"
+  },
+  "description": "노래와 앱을 이용해서 쉽게 단어를 외워보세요",
+  "links": {
+    "github": "",
+    "blog": ""
+  }
+}

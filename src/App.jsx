@@ -1,11 +1,15 @@
 // src/App.jsx
 import { useMemo, useState } from 'react';
+import Home from './components/Home.jsx';
 import WordList from './components/WordList.jsx';
+import Review from './components/Review.jsx';
+import About from './components/About.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import words from './data/words.json';
 
 function App() {
   const [chapter, setChapter] = useState(1);
+  const [activeTab, setActiveTab] = useState('home');
 
   const maxChapter = useMemo(
     () => Math.max(...words.map((w) => w.chapter || 1)),
@@ -14,32 +18,48 @@ function App() {
 
   return (
     <div className="app-root">
-      {/* 상단 상태바 */}
-      <header className="status-bar">
-        <span className="status-time">9:30</span>
-        <div className="status-icons" />
-      </header>
-
-      {/* 상단 타이틀: 단어장 + 현재/총 챕터 */}
       <header className="top-header">
-        <div className="top-title">단어장</div>
-        <div className="top-header-right">
-          <span className="page-main">{chapter}</span>
-          <span className="page-sub"> / {maxChapter}</span>
+        <div className="top-title">
+          {activeTab === 'wordlist' && '단어장'}
+          {activeTab === 'home' && '단어복습'}
+          {activeTab === 'review' && '단어복습'}
+          {activeTab === 'more' && 'About'}
         </div>
+        {activeTab !== 'more' && (
+          <div className="top-header-right">
+            <span className="page-sub">챕터 : </span>
+            <span className="page-main">{chapter}</span>
+            <span className="page-sub"> / {maxChapter}</span>
+          </div>
+        )}
       </header>
 
-      {/* 메인 콘텐츠 */}
       <main className="main-content">
-        <WordList
-          chapter={chapter}
-          setChapter={setChapter}
-          maxChapter={maxChapter}
-        />
+        {activeTab === 'home' && (
+          <Home
+            chapter={chapter}
+            setChapter={setChapter}
+            maxChapter={maxChapter}
+          />
+        )}
+        {activeTab === 'wordlist' && (
+          <WordList
+            chapter={chapter}
+            setChapter={setChapter}
+            maxChapter={maxChapter}
+          />
+        )}
+        {activeTab === 'review' && (
+          <Review
+            chapter={chapter}
+            setChapter={setChapter}
+            maxChapter={maxChapter}
+          />
+        )}
+        {activeTab === 'more' && <About />}
       </main>
 
-      {/* 하단 네비게이션 */}
-      <BottomNav />
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 }
