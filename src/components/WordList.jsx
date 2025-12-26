@@ -17,9 +17,9 @@ function WordList({ chapter, setChapter, maxChapter }) {
     return localStorage.getItem('wordlist-display-mode') || 'both';
   });
 
-  // 단어/뜻 표시 상태 (각 단어별)
-  const [wordVisibility, setWordVisibility] = useState({});
-  const [meaningVisibility, setMeaningVisibility] = useState({});
+  // 전체 단어/뜻 표시 상태
+  const [showWords, setShowWords] = useState(true);
+  const [showMeanings, setShowMeanings] = useState(true);
   
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -67,8 +67,8 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setChapter(nextChapter);
     setPage(1);
     setShowChapterModal(false);
-    setWordVisibility({});
-    setMeaningVisibility({});
+    setShowWords(true);
+    setShowMeanings(true);
   };
 
   const openChapterModal = () => {
@@ -84,6 +84,9 @@ function WordList({ chapter, setChapter, maxChapter }) {
       if (prev === 'word-only') return 'meaning-only';
       return 'both';
     });
+    // 모드 변경 시 표시 상태 초기화
+    setShowWords(true);
+    setShowMeanings(true);
   };
 
   // 표시 모드 텍스트
@@ -100,20 +103,16 @@ function WordList({ chapter, setChapter, maxChapter }) {
     return parts.slice(0, 2).join(', ');
   };
 
-  // 왼쪽(단어) 클릭
-  const toggleWordVisibility = (wordId) => {
-    setWordVisibility((prev) => ({
-      ...prev,
-      [wordId]: !prev[wordId]
-    }));
-  };
-
-  // 오른쪽(뜻) 클릭
-  const toggleMeaningVisibility = (wordId) => {
-    setMeaningVisibility((prev) => ({
-      ...prev,
-      [wordId]: !prev[wordId]
-    }));
+  // 테이블 셀 클릭 핸들러
+  const handleCellClick = (e, side) => {
+    // 모달이 열려있거나 버튼 클릭은 무시
+    if (e.target.closest('button')) return;
+    
+    if (side === 'left') {
+      setShowWords(prev => !prev);
+    } else {
+      setShowMeanings(prev => !prev);
+    }
   };
 
   // 스와이프로 페이지 & 챕터 이동
@@ -165,6 +164,10 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setNextChapterDirection(null);
   };
 
+  // 화면에 표시할 내용 결정
+  const shouldShowWord = displayMode === 'both' || displayMode === 'word-only';
+  const shouldShowMeaning = displayMode === 'both' || displayMode === 'meaning-only';
+
   return (
     <>
       <div
@@ -188,27 +191,22 @@ function WordList({ chapter, setChapter, maxChapter }) {
         {/* 단어 테이블 */}
         <table className="wordlist-table">
           <tbody>
-            {pageWords.map((word) => {
-              const isWordHidden = wordVisibility[word.id];
-              const isMeaningHidden = meaningVisibility[word.id];
-
-              return (
-                <tr key={word.id}>
-                  <td 
-                    className="word-cell-50"
-                    onClick={() => toggleWordVisibility(word.id)}
-                  >
-                    {!isWordHidden && word.word}
-                  </td>
-                  <td 
-                    className="meaning-cell-50"
-                    onClick={() => toggleMeaningVisibility(word.id)}
-                  >
-                    {!isMeaningHidden && getTwoMeanings(word.meaning)}
-                  </td>
-                </tr>
-              );
-            })}
+            {pageWords.map((word) => (
+              <tr key={word.id}>
+                <td 
+                  className="word-cell-50"
+                  onClick={(e) => handleCellClick(e, 'left')}
+                >
+                  {shouldShowWord && showWords && word.word}
+                </td>
+                <td 
+                  className="meaning-cell-50"
+                  onClick={(e) => handleCellClick(e, 'right')}
+                >
+                  {shouldShowMeaning && showMeanings && getTwoMeanings(word.meaning)}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
