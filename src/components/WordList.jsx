@@ -98,6 +98,9 @@ function WordList({ chapter, setChapter, maxChapter }) {
       if (prev === 'word-only') return 'meaning-only';
       return 'both';
     });
+    // 옵션 변경 시 표시 상태 초기화
+    setShowWords(true);
+    setShowMeanings(true);
   };
 
   // 표시 모드 텍스트
@@ -181,6 +184,10 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setNextChapterDirection(null);
   };
 
+  // 실제로 단어를 표시할지 결정
+  const shouldShowWordContent = (displayMode === 'both' || displayMode === 'word-only') && showWords;
+  const shouldShowMeaningContent = (displayMode === 'both' || displayMode === 'meaning-only') && showMeanings;
+
   return (
     <>
       <div
@@ -211,13 +218,13 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   className="word-cell-50"
                   onClick={(e) => handleCellClick(e, 'left')}
                 >
-                  {showWords && word.word}
+                  {shouldShowWordContent && word.word}
                 </td>
                 <td 
                   className="meaning-cell-50"
                   onClick={(e) => handleCellClick(e, 'right')}
                 >
-                  {showMeanings && getTwoMeanings(word.meaning)}
+                  {shouldShowMeaningContent && getTwoMeanings(word.meaning)}
                 </td>
               </tr>
             ))}
