@@ -11,7 +11,8 @@ function Home({ chapter, setChapter, maxChapter }) {
   const [autoPlayInterval, setAutoPlayInterval] = useState(3000);
   const [showSettings, setShowSettings] = useState(false);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  
+  const [showDetail, setShowDetail] = useState(false); // 단어만/뜻·예문 단계 토글
+
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const touchStartY = useRef(0);
@@ -28,23 +29,34 @@ function Home({ chapter, setChapter, maxChapter }) {
   // 챕터가 변경되면 첫 단어로 리셋
   useEffect(() => {
     setCurrentWordIndex(0);
+    setShowDetail(false); // 챕터 바뀌면 항상 단어만부터
   }, [chapter]);
 
-  // 자동 재생 기능
+  // 자동 재생 기능: 단어 -> 뜻/예문 -> 다음 단어 -> ...
   useEffect(() => {
     if (!isAutoPlay || chapterWords.length === 0) return;
 
     const timer = setInterval(() => {
-      setCurrentWordIndex((prev) => {
-        if (prev >= chapterWords.length - 1) {
-          return 0;
+      setShowDetail((prevDetail) => {
+        if (!prevDetail) {
+          // 1단계: 단어만 → 뜻/예문 표시
+          return true;
+        } else {
+          // 2단계: 뜻/예문까지 본 상태 → 다음 단어로 이동 + 단어만
+          setCurrentWordIndex((prev) => {
+            if (prev >= chapterWords.length - 1) {
+              return 0;
+            }
+            return prev + 1;
+          });
+          return false;
         }
-        return prev + 1;
       });
     }, autoPlayInterval);
 
     return () => clearInterval(timer);
   }, [isAutoPlay, autoPlayInterval, chapterWords.length]);
+
 
   // YouTube oEmbed API로 비디오 정보 가져오기
   useEffect(() => {
