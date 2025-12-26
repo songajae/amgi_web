@@ -31,6 +31,20 @@ function WordList({ chapter, setChapter, maxChapter }) {
     localStorage.setItem('wordlist-display-mode', displayMode);
   }, [displayMode]);
 
+  // displayMode 변경시 터치 상태 초기화
+  useEffect(() => {
+    if (displayMode === 'both') {
+      setShowWordsByTouch(true);
+      setShowMeaningsByTouch(true);
+    } else if (displayMode === 'word-only') {
+      setShowWordsByTouch(true);
+      setShowMeaningsByTouch(false);
+    } else if (displayMode === 'meaning-only') {
+      setShowWordsByTouch(false);
+      setShowMeaningsByTouch(true);
+    }
+  }, [displayMode]);
+
   // 챕터 변경시 로컬스토리지에 저장
   useEffect(() => {
     localStorage.setItem('wordlist-last-chapter', chapter.toString());
@@ -80,9 +94,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setChapter(nextChapter);
     setPage(1);
     setShowChapterModal(false);
-    // 페이지 변경 시 터치 상태 초기화
-    setShowWordsByTouch(true);
-    setShowMeaningsByTouch(true);
   };
 
   const openChapterModal = () => {
@@ -98,9 +109,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
       if (prev === 'word-only') return 'meaning-only';
       return 'both';
     });
-    // 옵션 변경 시 터치 상태 초기화
-    setShowWordsByTouch(true);
-    setShowMeaningsByTouch(true);
   };
 
   // 표시 모드 텍스트
@@ -131,9 +139,17 @@ function WordList({ chapter, setChapter, maxChapter }) {
 
   // 페이지 변경 시 터치 상태 초기화
   useEffect(() => {
-    setShowWordsByTouch(true);
-    setShowMeaningsByTouch(true);
-  }, [page]);
+    if (displayMode === 'both') {
+      setShowWordsByTouch(true);
+      setShowMeaningsByTouch(true);
+    } else if (displayMode === 'word-only') {
+      setShowWordsByTouch(true);
+      setShowMeaningsByTouch(false);
+    } else if (displayMode === 'meaning-only') {
+      setShowWordsByTouch(false);
+      setShowMeaningsByTouch(true);
+    }
+  }, [page, displayMode]);
 
   // 스와이프로 페이지 & 챕터 이동
   const handleTouchStart = (e) => {
@@ -184,25 +200,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setNextChapterDirection(null);
   };
 
-  // 실제 표시 여부 결정
-  // 왼쪽 셀: displayMode에 따라 기본 표시 여부 결정 + 터치 상태
-  const getWordDisplay = () => {
-    // 터치로 숨긴 경우 무조건 숨김
-    if (!showWordsByTouch) return false;
-    
-    // 터치로 숨기지 않은 경우 displayMode 확인
-    return displayMode === 'both' || displayMode === 'word-only';
-  };
-
-  // 오른쪽 셀: displayMode에 따라 기본 표시 여부 결정 + 터치 상태
-  const getMeaningDisplay = () => {
-    // 터치로 숨긴 경우 무조건 숨김
-    if (!showMeaningsByTouch) return false;
-    
-    // 터치로 숨기지 않은 경우 displayMode 확인
-    return displayMode === 'both' || displayMode === 'meaning-only';
-  };
-
   return (
     <>
       <div
@@ -233,13 +230,13 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   className="word-cell-50"
                   onClick={(e) => handleCellClick(e, 'left')}
                 >
-                  {getWordDisplay() && word.word}
+                  {showWordsByTouch && word.word}
                 </td>
                 <td 
                   className="meaning-cell-50"
                   onClick={(e) => handleCellClick(e, 'right')}
                 >
-                  {getMeaningDisplay() && getTwoMeanings(word.meaning)}
+                  {showMeaningsByTouch && getTwoMeanings(word.meaning)}
                 </td>
               </tr>
             ))}
