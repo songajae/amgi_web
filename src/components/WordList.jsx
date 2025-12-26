@@ -17,9 +17,9 @@ function WordList({ chapter, setChapter, maxChapter }) {
     return localStorage.getItem('wordlist-display-mode') || 'both';
   });
 
-  // 전체 단어/뜻 표시 상태
-  const [showWords, setShowWords] = useState(true);
-  const [showMeanings, setShowMeanings] = useState(true);
+  // 전체 단어/뜻 표시 상태 (터치로 제어)
+  const [showWordsByTouch, setShowWordsByTouch] = useState(true);
+  const [showMeaningsByTouch, setShowMeaningsByTouch] = useState(true);
   
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -80,9 +80,9 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setChapter(nextChapter);
     setPage(1);
     setShowChapterModal(false);
-    // 페이지 변경 시 표시 상태 초기화
-    setShowWords(true);
-    setShowMeanings(true);
+    // 페이지 변경 시 터치 상태 초기화
+    setShowWordsByTouch(true);
+    setShowMeaningsByTouch(true);
   };
 
   const openChapterModal = () => {
@@ -98,9 +98,9 @@ function WordList({ chapter, setChapter, maxChapter }) {
       if (prev === 'word-only') return 'meaning-only';
       return 'both';
     });
-    // 옵션 변경 시 표시 상태 초기화
-    setShowWords(true);
-    setShowMeanings(true);
+    // 옵션 변경 시 터치 상태 초기화
+    setShowWordsByTouch(true);
+    setShowMeaningsByTouch(true);
   };
 
   // 표시 모드 텍스트
@@ -123,16 +123,16 @@ function WordList({ chapter, setChapter, maxChapter }) {
     if (e.target.closest('button')) return;
     
     if (side === 'left') {
-      setShowWords(prev => !prev);
+      setShowWordsByTouch(prev => !prev);
     } else {
-      setShowMeanings(prev => !prev);
+      setShowMeaningsByTouch(prev => !prev);
     }
   };
 
-  // 페이지 변경 시 표시 상태 초기화
+  // 페이지 변경 시 터치 상태 초기화
   useEffect(() => {
-    setShowWords(true);
-    setShowMeanings(true);
+    setShowWordsByTouch(true);
+    setShowMeaningsByTouch(true);
   }, [page]);
 
   // 스와이프로 페이지 & 챕터 이동
@@ -184,9 +184,12 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setNextChapterDirection(null);
   };
 
-  // 옵션에 따라 해당 영역이 활성화되어 있는지 확인
-  const isWordModeActive = displayMode === 'both' || displayMode === 'word-only';
-  const isMeaningModeActive = displayMode === 'both' || displayMode === 'meaning-only';
+  // 실제 표시 여부 결정
+  // 단어 표시: (둘다보기 OR 단어만) AND 터치로 숨기지 않음
+  const shouldShowWord = (displayMode === 'both' || displayMode === 'word-only') && showWordsByTouch;
+  
+  // 뜻 표시: (둘다보기 OR 뜻만) AND 터치로 숨기지 않음
+  const shouldShowMeaning = (displayMode === 'both' || displayMode === 'meaning-only') && showMeaningsByTouch;
 
   return (
     <>
@@ -218,13 +221,13 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   className="word-cell-50"
                   onClick={(e) => handleCellClick(e, 'left')}
                 >
-                  {isWordModeActive && showWords && word.word}
+                  {shouldShowWord && word.word}
                 </td>
                 <td 
                   className="meaning-cell-50"
                   onClick={(e) => handleCellClick(e, 'right')}
                 >
-                  {isMeaningModeActive && showMeanings && getTwoMeanings(word.meaning)}
+                  {shouldShowMeaning && getTwoMeanings(word.meaning)}
                 </td>
               </tr>
             ))}
