@@ -838,25 +838,26 @@ body {
 }
 
 /* Level 버튼 (주황색 박스) */
-/* Level 버튼 (주황색 박스) */
 .wordlist-level-btn {
   background: #fe623f;
   border: none;
   color: #ffffff;
   font-size: 20px;
   font-weight: 700;
-  padding: 8px 16px;        /* 12px 20px → 8px 16px */
-  border-radius: 8px;       /* 12px → 8px */
+  padding: 1px 12px;        /* 4px 12px → 1px 12px */
+  border-radius: 6px;
   cursor: pointer;
-  display: inline-flex;     /* flex → inline-flex */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  align-self: flex-start;   /* 추가: 왼쪽 정렬 유지 */
+  gap: 6px;
+  align-self: flex-start;
+  line-height: 1;
 }
 
 .level-arrow {
-  font-size: 12px;          /* 14px → 12px */
+  font-size: 12px;
+  line-height: 1;
 }
 
 
