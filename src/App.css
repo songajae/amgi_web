@@ -967,19 +967,6 @@ body {
   white-space: nowrap;
 }
 
-/* 단어장: 주황색 페이지 모드 버튼 */
-.wordlist-page-mode-btn {
-  background: #fe623f;
-  border: none;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 8px 20px;
-  border-radius: 999px;
-  cursor: pointer;
-  min-width: 120px;
-}
-
 
 .wordlist-table {
   width: 100%;
