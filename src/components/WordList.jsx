@@ -164,20 +164,61 @@ function WordList({ chapter, setChapter, maxChapter }) {
 
   const handleTouchEnd = () => {
     const swipeDistanceX = touchStartX.current - touchEndX.current;
-    const swipeDistanceY = Math.abs(touchStartY.current - touchEndY.current);
+    const swipeDistanceY = Math.abs(
+      touchStartY.current - touchEndY.current,
+    );
     const minSwipeDistance = 50;
 
     if (swipeDistanceY > 50) return;
 
     if (Math.abs(swipeDistanceX) > minSwipeDistance) {
       if (swipeDistanceX > 0) {
-        if (page < totalPages) {
-          setPage((p) => p + 1);
-        } else if (chapter < maxChapter) {
-          setNextChapterDirection('next');
-          setShowConfirmDialog(true);
+        // ===== 오른쪽 → 왼쪽 스와이프: 다음 페이지 / 모드별 스텝 =====
+        if (displayMode === 'both') {
+          // 1. 둘다 보기: 그냥 다음 페이지
+          if (page < totalPages) {
+            setPage((p) => p + 1);
+          } else if (chapter < maxChapter) {
+            setNextChapterDirection('next');
+            setShowConfirmDialog(true);
+          }
+        } else if (displayMode === 'word-only') {
+          // 2. 단어만: 단어 -> 단어+뜻 -> 다음 단어 -> 다음 단어+뜻 ...
+          if (!stepToggle) {
+            // 현재 페이지에서 뜻까지 켜기
+            setShowMeaningsByTouch(true);
+            setStepToggle(true);
+          } else {
+            // 다음 페이지로 넘어가면서 다시 단어만
+            if (page < totalPages) {
+              setPage((p) => p + 1);
+            } else if (chapter < maxChapter) {
+              setNextChapterDirection('next');
+              setShowConfirmDialog(true);
+            }
+            setShowMeaningsByTouch(false);
+            setStepToggle(false);
+          }
+        } else if (displayMode === 'meaning-only') {
+          // 3. 뜻만: 뜻 -> 단어+뜻 -> 다음 뜻 -> 다음 단어+뜻 ...
+          if (!stepToggle) {
+            // 현재 페이지에서 단어도 켜기
+            setShowWordsByTouch(true);
+            setStepToggle(true);
+          } else {
+            // 다음 페이지로 넘어가면서 다시 뜻만
+            if (page < totalPages) {
+              setPage((p) => p + 1);
+            } else if (chapter < maxChapter) {
+              setNextChapterDirection('next');
+              setShowConfirmDialog(true);
+            }
+            setShowWordsByTouch(false);
+            setStepToggle(false);
+          }
         }
       } else {
+        // ===== 왼쪽 → 오른쪽 스와이프: 이전 페이지 / 이전 챕터 (기존과 동일) =====
         if (page > 1) {
           setPage((p) => p - 1);
         } else if (chapter > 1) {
@@ -187,6 +228,7 @@ function WordList({ chapter, setChapter, maxChapter }) {
       }
     }
   };
+
 
   const handleConfirmChapterChange = (confirm) => {
     setShowConfirmDialog(false);
