@@ -943,7 +943,7 @@ body {
 
 /* 5:5 비율 */
 .word-cell-50 {
-  padding: 14px 12px;
+  padding: 8px 12px;      /* 위아래 줄이기 */
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
@@ -952,11 +952,11 @@ body {
   word-break: break-word;
   cursor: pointer;
   user-select: none;
-  min-height: 48px;
+  min-height: 36px;       /* 최소 높이도 축소 */
 }
 
 .meaning-cell-50 {
-  padding: 14px 12px;
+  padding: 8px 12px;      /* 위아래 줄이기 */
   color: #d6d6d6;
   font-size: 14px;
   width: 50%;
@@ -965,8 +965,9 @@ body {
   word-break: keep-all;
   cursor: pointer;
   user-select: none;
-  min-height: 48px;
+  min-height: 36px;
 }
+
 
 /* 페이지네이션 */
 .wordlist-pagination {
