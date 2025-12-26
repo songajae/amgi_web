@@ -31,6 +31,19 @@ function WordList({ chapter, setChapter, maxChapter }) {
     localStorage.setItem('wordlist-display-mode', displayMode);
   }, [displayMode]);
 
+  // 챕터 변경시 로컬스토리지에 저장
+  useEffect(() => {
+    localStorage.setItem('wordlist-last-chapter', chapter.toString());
+  }, [chapter]);
+
+  // 컴포넌트 마운트 시 마지막 챕터 불러오기
+  useEffect(() => {
+    const lastChapter = localStorage.getItem('wordlist-last-chapter');
+    if (lastChapter && parseInt(lastChapter) !== chapter) {
+      setChapter(parseInt(lastChapter));
+    }
+  }, []); // 빈 배열: 최초 마운트 시에만 실행
+
   const chapterWords = useMemo(
     () => words.filter((w) => (w.chapter || 1) === chapter),
     [chapter],
@@ -67,6 +80,7 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setChapter(nextChapter);
     setPage(1);
     setShowChapterModal(false);
+    // 페이지 변경 시 표시 상태 초기화
     setShowWords(true);
     setShowMeanings(true);
   };
@@ -84,9 +98,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
       if (prev === 'word-only') return 'meaning-only';
       return 'both';
     });
-    // 모드 변경 시 표시 상태 초기화
-    setShowWords(true);
-    setShowMeanings(true);
   };
 
   // 표시 모드 텍스트
@@ -114,6 +125,12 @@ function WordList({ chapter, setChapter, maxChapter }) {
       setShowMeanings(prev => !prev);
     }
   };
+
+  // 페이지 변경 시 표시 상태 초기화
+  useEffect(() => {
+    setShowWords(true);
+    setShowMeanings(true);
+  }, [page]);
 
   // 스와이프로 페이지 & 챕터 이동
   const handleTouchStart = (e) => {
@@ -164,10 +181,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setNextChapterDirection(null);
   };
 
-  // 화면에 표시할 내용 결정
-  const shouldShowWord = displayMode === 'both' || displayMode === 'word-only';
-  const shouldShowMeaning = displayMode === 'both' || displayMode === 'meaning-only';
-
   return (
     <>
       <div
@@ -185,6 +198,7 @@ function WordList({ chapter, setChapter, maxChapter }) {
 
           <button className="wordlist-mode-btn" onClick={toggleDisplayMode}>
             {getDisplayModeText()}
+            <span className="level-arrow">▼</span>
           </button>
         </div>
 
@@ -197,13 +211,13 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   className="word-cell-50"
                   onClick={(e) => handleCellClick(e, 'left')}
                 >
-                  {shouldShowWord && showWords && word.word}
+                  {showWords && word.word}
                 </td>
                 <td 
                   className="meaning-cell-50"
                   onClick={(e) => handleCellClick(e, 'right')}
                 >
-                  {shouldShowMeaning && showMeanings && getTwoMeanings(word.meaning)}
+                  {showMeanings && getTwoMeanings(word.meaning)}
                 </td>
               </tr>
             ))}
