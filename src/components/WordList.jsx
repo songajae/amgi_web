@@ -184,9 +184,9 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setNextChapterDirection(null);
   };
 
-  // 실제로 단어를 표시할지 결정
-  const shouldShowWordContent = (displayMode === 'both' || displayMode === 'word-only') && showWords;
-  const shouldShowMeaningContent = (displayMode === 'both' || displayMode === 'meaning-only') && showMeanings;
+  // 옵션에 따라 해당 영역이 활성화되어 있는지 확인
+  const isWordModeActive = displayMode === 'both' || displayMode === 'word-only';
+  const isMeaningModeActive = displayMode === 'both' || displayMode === 'meaning-only';
 
   return (
     <>
@@ -218,13 +218,13 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   className="word-cell-50"
                   onClick={(e) => handleCellClick(e, 'left')}
                 >
-                  {shouldShowWordContent && word.word}
+                  {isWordModeActive && showWords && word.word}
                 </td>
                 <td 
                   className="meaning-cell-50"
                   onClick={(e) => handleCellClick(e, 'right')}
                 >
-                  {shouldShowMeaningContent && getTwoMeanings(word.meaning)}
+                  {isMeaningModeActive && showMeanings && getTwoMeanings(word.meaning)}
                 </td>
               </tr>
             ))}
