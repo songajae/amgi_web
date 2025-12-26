@@ -514,6 +514,30 @@ body {
   color: #ffffff;
   padding: 4px;
 }
+/* 챕터 모달 2열 그리드 */
+.chapter-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.chapter-modal-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #000000;
+  text-align: left;
+  font-size: 18px;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.chapter-modal-item.active {
+  font-weight: 700;
+}
+
 
 /* 설정 패널 (홈/기타에서 사용) */
 .settings-panel {

@@ -11,7 +11,7 @@ function Home({ chapter, setChapter, maxChapter }) {
   const [autoPlayInterval, setAutoPlayInterval] = useState(3000);
   const [showSettings, setShowSettings] = useState(false);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const [showDetail, setShowDetail] = useState(false); // 단어만/뜻·예문 단계 토글
+  const [showDetail, setShowDetail] = useState(false); // 단어만 / 단어+뜻·예문 토글
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -29,20 +29,20 @@ function Home({ chapter, setChapter, maxChapter }) {
   // 챕터가 변경되면 첫 단어로 리셋
   useEffect(() => {
     setCurrentWordIndex(0);
-    setShowDetail(false); // 챕터 바뀌면 항상 단어만부터
+    setShowDetail(false); // 항상 단어만부터 시작
   }, [chapter]);
 
-  // 자동 재생 기능: 단어 -> 뜻/예문 -> 다음 단어 -> ...
+  // 자동 재생 기능: 단어 -> 단어+뜻/예문 -> 다음 단어 -> ...
   useEffect(() => {
     if (!isAutoPlay || chapterWords.length === 0) return;
 
     const timer = setInterval(() => {
       setShowDetail((prevDetail) => {
         if (!prevDetail) {
-          // 1단계: 단어만 → 뜻/예문 표시
+          // 1단계: 단어만 → 단어+뜻/예문
           return true;
         } else {
-          // 2단계: 뜻/예문까지 본 상태 → 다음 단어로 이동 + 단어만
+          // 2단계: 단어+뜻/예문 → 다음 단어 (단어만)
           setCurrentWordIndex((prev) => {
             if (prev >= chapterWords.length - 1) {
               return 0;
@@ -56,6 +56,7 @@ function Home({ chapter, setChapter, maxChapter }) {
 
     return () => clearInterval(timer);
   }, [isAutoPlay, autoPlayInterval, chapterWords.length]);
+
 
 
   // YouTube oEmbed API로 비디오 정보 가져오기
@@ -208,6 +209,7 @@ function Home({ chapter, setChapter, maxChapter }) {
       >
 
 
+
         {/* 설정 패널 */}
         {showSettings && (
           <div className="settings-panel">
@@ -237,22 +239,29 @@ function Home({ chapter, setChapter, maxChapter }) {
           </div>
         )}
 
+        {/* 단어: 항상 표시 */}
         <div className="flashcard-word">{currentWord.word || 'No word'}</div>
-        <div className="flashcard-meanings">
-          {meanings.map((m, index) => (
-            <div key={index} className="flashcard-meaning">
-              {m.pos && <span className="pos-tag">{m.pos}</span>} {m.meaning}
+
+        {/* showDetail 이 true 일 때만 뜻/예문 표시 */}
+        {showDetail && (
+          <>
+            <div className="flashcard-meanings">
+              {meanings.map((m, index) => (
+                <div key={index} className="flashcard-meaning">
+                  {m.pos && <span className="pos-tag">{m.pos}</span>} {m.meaning}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="flashcard-example">
-          {currentWord.example && (
-            <div className="example-en">{currentWord.example}</div>
-          )}
-          {currentWord.exampleMeaning && (
-            <div className="example-ko">{currentWord.exampleMeaning}</div>
-          )}
-        </div>
+            <div className="flashcard-example">
+              {currentWord.example && (
+                <div className="example-en">{currentWord.example}</div>
+              )}
+              {currentWord.exampleMeaning && (
+                <div className="example-ko">{currentWord.exampleMeaning}</div>
+              )}
+            </div>
+          </>
+        )}
 
         {/* 카드 네비게이션 */}
         <div className="flashcard-nav">
@@ -267,6 +276,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           </button>
         </div>
       </div>
+
 
       {/* 유튜브 영상 */}
       {youtubeData?.videoId && (
@@ -302,7 +312,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           onClick={() => setShowChapterModal(false)}
         >
           <div className="chapter-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="chapter-modal-list">
+            <div className="chapter-modal-list chapter-modal-grid">
               {chapterPageItems.map((ch) => (
                 <button
                   key={ch}
@@ -313,7 +323,7 @@ function Home({ chapter, setChapter, maxChapter }) {
                   }
                   onClick={() => handleChangeChapter(ch)}
                 >
-                  ch{ch}. Level {ch}(40)
+                  Level {ch}
                 </button>
               ))}
             </div>
@@ -339,6 +349,7 @@ function Home({ chapter, setChapter, maxChapter }) {
               </button>
             </div>
           </div>
+
         </div>
       )}
     </div>
