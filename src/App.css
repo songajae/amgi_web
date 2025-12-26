@@ -496,37 +496,23 @@ body {
   word-break: break-word;
 }
 
-/* Level 타이틀 버튼 (왼쪽 상단) */
-.level-title-button {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background: #fe623f;
-  border: none;
-  color: #ffffff;
-  font-size: 20px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-flex;
+/* ===== 홈 상단 컨트롤 (박스 밖) ===== */
+.home-controls {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  line-height: 1;
-  z-index: 10;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-/* 설정 버튼 (오른쪽 상단) */
-.settings-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
+/* 홈용 설정 버튼 (박스 밖) */
+.home-settings-btn-outside {
   background: transparent;
   border: none;
   font-size: 24px;
   cursor: pointer;
-  z-index: 10;
+  color: #ffffff;
+  padding: 4px;
 }
 
 /* 설정 패널 (홈/기타에서 사용) */

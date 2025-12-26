@@ -181,6 +181,24 @@ function Home({ chapter, setChapter, maxChapter }) {
 
   return (
     <div className="home-container">
+      {/* 상단 컨트롤 바 (박스 밖) */}
+      <div className="home-controls">
+        <button
+          className="review-level-btn-outside"
+          onClick={openChapterModal}
+        >
+          Level {chapter}
+          <span className="level-arrow">▼</span>
+        </button>
+
+        <button
+          className="home-settings-btn-outside"
+          onClick={() => setShowSettings(!showSettings)}
+        >
+          ⚙️
+        </button>
+      </div>
+
       {/* 단어 카드 */}
       <div
         className="flashcard"
@@ -188,22 +206,7 @@ function Home({ chapter, setChapter, maxChapter }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Level 표시 (왼쪽 상단) */}
-        <button
-          className="level-title-button"
-          onClick={openChapterModal}
-        >
-          Level {chapter}
-          <span className="level-arrow">▼</span>
-        </button>
 
-        {/* 설정 버튼 */}
-        <button
-          className="settings-btn"
-          onClick={() => setShowSettings(!showSettings)}
-        >
-          ⚙️
-        </button>
 
         {/* 설정 패널 */}
         {showSettings && (
