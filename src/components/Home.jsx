@@ -213,6 +213,12 @@ function Home({ chapter, setChapter, maxChapter }) {
         {/* 설정 패널 */}
         {showSettings && (
           <div className="settings-panel">
+            <button
+              className="settings-close-btn"
+              onClick={() => setShowSettings(false)}
+            >
+              ✕
+            </button>
             <div className="setting-item">
               <label>
                 <input
@@ -239,6 +245,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           </div>
         )}
 
+
         {/* 단어: 항상 표시 */}
         <div className="flashcard-word">{currentWord.word || 'No word'}</div>
 
@@ -263,8 +270,8 @@ function Home({ chapter, setChapter, maxChapter }) {
           </>
         )}
 
-        {/* 카드 네비게이션 */}
-        <div className="flashcard-nav">
+        {/* 카드 네비게이션 - 박스 하단 고정 */}
+        <div className="flashcard-nav flashcard-nav-fixed-home">
           <button className="nav-btn" onClick={handlePrevWord}>
             ◀
           </button>
@@ -276,6 +283,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           </button>
         </div>
       </div>
+
 
 
       {/* 유튜브 영상 */}
