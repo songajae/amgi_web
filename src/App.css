@@ -868,14 +868,14 @@ body {
   line-height: 1;
 }
 
-/* 표시 모드 버튼 (주황색 박스) */
+/* 표시 모드 버튼 (주황색 박스) - Level 1과 동일 */
 .wordlist-mode-btn {
   background: #fe623f;
   border: none;
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 2px 8px;
+  font-size: 20px;        /* 16px → 20px */
+  font-weight: 700;       /* 600 → 700 */
+  padding: 2px 2px;       /* 동일하게 */
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
@@ -898,24 +898,31 @@ body {
   border-bottom: none;
 }
 
-.word-cell {
+/* 5:5 비율로 수정 */
+.word-cell-50 {
   padding: 14px 12px;
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
-  width: 35%;
+  width: 50%;              /* 35% → 50% */
   vertical-align: middle;
   word-break: break-word;
+  cursor: pointer;
+  user-select: none;
+  min-height: 48px;        /* 빈 셀 높이 유지 */
 }
 
-.meaning-cell {
+.meaning-cell-50 {
   padding: 14px 12px;
   color: #d6d6d6;
   font-size: 14px;
-  width: 65%;
+  width: 50%;              /* 65% → 50% */
   vertical-align: middle;
   line-height: 1.5;
   word-break: keep-all;
+  cursor: pointer;
+  user-select: none;
+  min-height: 48px;        /* 빈 셀 높이 유지 */
 }
 
 /* 페이지네이션 */

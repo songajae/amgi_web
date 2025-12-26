@@ -1,5 +1,5 @@
 // src/components/WordList.jsx
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import words from '../data/words.json';
 
 function WordList({ chapter, setChapter, maxChapter }) {
@@ -11,12 +11,25 @@ function WordList({ chapter, setChapter, maxChapter }) {
   const [chapterPage, setChapterPage] = useState(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [nextChapterDirection, setNextChapterDirection] = useState(null);
-  const [displayMode, setDisplayMode] = useState('both');
+  
+  // 로컬스토리지에서 표시 모드 불러오기
+  const [displayMode, setDisplayMode] = useState(() => {
+    return localStorage.getItem('wordlist-display-mode') || 'both';
+  });
+
+  // 단어/뜻 표시 상태 (각 단어별)
+  const [wordVisibility, setWordVisibility] = useState({});
+  const [meaningVisibility, setMeaningVisibility] = useState({});
   
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
+
+  // 표시 모드 변경시 로컬스토리지에 저장
+  useEffect(() => {
+    localStorage.setItem('wordlist-display-mode', displayMode);
+  }, [displayMode]);
 
   const chapterWords = useMemo(
     () => words.filter((w) => (w.chapter || 1) === chapter),
@@ -54,6 +67,8 @@ function WordList({ chapter, setChapter, maxChapter }) {
     setChapter(nextChapter);
     setPage(1);
     setShowChapterModal(false);
+    setWordVisibility({});
+    setMeaningVisibility({});
   };
 
   const openChapterModal = () => {
@@ -76,6 +91,29 @@ function WordList({ chapter, setChapter, maxChapter }) {
     if (displayMode === 'both') return '둘다 보기';
     if (displayMode === 'word-only') return '단어만';
     return '뜻만';
+  };
+
+  // 뜻을 쉼표 기준으로 2개만 추출
+  const getTwoMeanings = (meaning) => {
+    if (!meaning) return '';
+    const parts = meaning.split(',').map(m => m.trim());
+    return parts.slice(0, 2).join(', ');
+  };
+
+  // 왼쪽(단어) 클릭
+  const toggleWordVisibility = (wordId) => {
+    setWordVisibility((prev) => ({
+      ...prev,
+      [wordId]: !prev[wordId]
+    }));
+  };
+
+  // 오른쪽(뜻) 클릭
+  const toggleMeaningVisibility = (wordId) => {
+    setMeaningVisibility((prev) => ({
+      ...prev,
+      [wordId]: !prev[wordId]
+    }));
   };
 
   // 스와이프로 페이지 & 챕터 이동
@@ -150,16 +188,27 @@ function WordList({ chapter, setChapter, maxChapter }) {
         {/* 단어 테이블 */}
         <table className="wordlist-table">
           <tbody>
-            {pageWords.map((word) => (
-              <tr key={word.id}>
-                {(displayMode === 'both' || displayMode === 'word-only') && (
-                  <td className="word-cell">{word.word}</td>
-                )}
-                {(displayMode === 'both' || displayMode === 'meaning-only') && (
-                  <td className="meaning-cell">{word.meaning}</td>
-                )}
-              </tr>
-            ))}
+            {pageWords.map((word) => {
+              const isWordHidden = wordVisibility[word.id];
+              const isMeaningHidden = meaningVisibility[word.id];
+
+              return (
+                <tr key={word.id}>
+                  <td 
+                    className="word-cell-50"
+                    onClick={() => toggleWordVisibility(word.id)}
+                  >
+                    {!isWordHidden && word.word}
+                  </td>
+                  <td 
+                    className="meaning-cell-50"
+                    onClick={() => toggleMeaningVisibility(word.id)}
+                  >
+                    {!isMeaningHidden && getTwoMeanings(word.meaning)}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
