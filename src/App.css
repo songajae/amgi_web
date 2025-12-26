@@ -282,17 +282,16 @@ body {
   background: transparent;
   color: #000000;
   text-align: left;
-  font-size: 18px;          /* 22px → 18px로 감소 */
+  font-size: 18px;
   padding: 0;
   cursor: pointer;
-  line-height: 1.4;         /* 1.3 → 1.4로 증가 */
-  word-break: keep-all;     /* 추가 */
+  line-height: 1.4;
+  word-break: keep-all;
 }
 
 .chapter-modal-item.active {
   font-weight: 700;
 }
-
 
 /* 하단 페이지 표시 */
 .chapter-modal-footer {
@@ -578,24 +577,85 @@ body {
   max-width: 700px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  gap: 12px;
   touch-action: pan-y;
+}
+
+/* 상단 컨트롤 바 (박스 밖) */
+.review-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Level 버튼 (박스 밖, 주황색) */
+.review-level-btn-outside {
+  background: #fe623f;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+/* 랜덤 버튼 (박스 밖) */
+.review-random-btn-outside {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 12px;
+  white-space: nowrap;
+  flex: 1;
+  max-width: 200px;
+}
+
+/* 설정 버튼 (박스 밖) */
+.review-settings-btn-outside {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ffffff;
+  padding: 4px;
+}
+
+/* 설정 패널 (박스 밖 아래) */
+.review-settings-panel {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  min-width: 200px;
 }
 
 /* 복습 플래시카드 */
 .review-flashcard {
   width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding-top: 60px;
-  padding-left: 16px;
-  padding-right: 16px;
+  justify-content: center;
   cursor: pointer;
   user-select: none;
+  position: relative;
+  min-height: 0;
 }
 
 .review-flashcard .flashcard-word {
@@ -612,39 +672,32 @@ body {
   margin-bottom: 20px;
 }
 
-.review-flashcard .flashcard-nav {
-  margin-top: 40px;
-  margin-bottom: 0;
-}
-
-
-/* 랜덤 버튼 텍스트 스타일 */
-.random-btn-text {
+/* 네비게이션을 박스 맨 아래 고정 */
+.flashcard-nav-fixed {
   position: absolute;
-  top: 16px;
-  right: 56px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 13px;
-  cursor: pointer;
-  z-index: 10;
-  padding: 6px 12px;
-  white-space: nowrap;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
 
-/* 예문을 네비게이션 아래에 배치 */
-.flashcard-example-below {
-  margin-top: 20px;
+/* 예문을 네비게이션 바로 위에 배치 */
+.flashcard-example-above-nav {
+  position: absolute;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 0 16px;
-  max-width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
 }
 
-.flashcard-example-below .example-en {
+.flashcard-example-above-nav .example-en {
   color: #d6d6d6;
   font-size: 16px;
   text-align: left;
@@ -652,7 +705,7 @@ body {
   word-break: break-word;
 }
 
-.flashcard-example-below .example-ko {
+.flashcard-example-above-nav .example-ko {
   color: #d6d6d6;
   font-size: 14px;
   text-align: left;
@@ -805,31 +858,6 @@ body {
 }
 
 /* ===== 단어장 화면 ===== */
-.wordlist-settings-btn {
-  position: fixed;
-  top: 20px;
-  right: 56px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 100;
-  color: #ffffff;
-}
-
-.wordlist-settings-panel {
-  position: fixed;
-  top: 60px;
-  right: 20px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 100;
-  min-width: 200px;
-}
-
-/* ===== 단어장 화면 ===== */
 .wordlist-wrap {
   width: 100%;
   max-width: 700px;
@@ -853,7 +881,7 @@ body {
   color: #ffffff;
   font-size: 20px;
   font-weight: 700;
-  padding: 2px 2px;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
@@ -873,14 +901,15 @@ body {
   background: #fe623f;
   border: none;
   color: #ffffff;
-  font-size: 20px;        /* 16px → 20px */
-  font-weight: 700;       /* 600 → 700 */
-  padding: 2px 2px;       /* 동일하게 */
+  font-size: 20px;
+  font-weight: 700;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   line-height: 1;
   white-space: nowrap;
 }
@@ -904,25 +933,25 @@ body {
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
-  width: 50%;              /* 35% → 50% */
+  width: 50%;
   vertical-align: middle;
   word-break: break-word;
   cursor: pointer;
   user-select: none;
-  min-height: 48px;        /* 빈 셀 높이 유지 */
+  min-height: 48px;
 }
 
 .meaning-cell-50 {
   padding: 14px 12px;
   color: #d6d6d6;
   font-size: 14px;
-  width: 50%;              /* 65% → 50% */
+  width: 50%;
   vertical-align: middle;
   line-height: 1.5;
   word-break: keep-all;
   cursor: pointer;
   user-select: none;
-  min-height: 48px;        /* 빈 셀 높이 유지 */
+  min-height: 48px;
 }
 
 /* 페이지네이션 */
@@ -960,67 +989,4 @@ body {
   font-weight: 600;
   font-size: 12px;
   margin-right: 4px;
-}
-
-
-/* Review Level 버튼 (주황색 박스 - WordList와 동일) */
-.review-level-btn {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background: #fe623f;
-  border: none;
-  color: #ffffff;
-  font-size: 20px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  line-height: 1;
-  z-index: 10;
-}
-
-/* 네비게이션을 박스 맨 아래 고정 */
-.flashcard-nav-fixed {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-}
-
-/* 예문을 네비게이션 바로 위에 배치 */
-.flashcard-example-above-nav {
-  position: absolute;
-  bottom: 80px;
-  left: 16px;
-  right: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.flashcard-example-above-nav .example-en {
-  color: #d6d6d6;
-  font-size: 16px;
-  text-align: left;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.flashcard-example-above-nav .example-ko {
-  color: #d6d6d6;
-  font-size: 14px;
-  text-align: left;
-  line-height: 1.4;
-  word-break: keep-all;
 }

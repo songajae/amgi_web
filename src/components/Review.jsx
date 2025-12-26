@@ -71,17 +71,14 @@ function Review({ chapter, setChapter, maxChapter }) {
       setCurrentWordIndex((prev) => prev + 1);
       setShowContent(false);
       
-      // 현재 단어를 학습한 것으로 표시
       const newStudiedWords = new Set(studiedWords);
       newStudiedWords.add(getCurrentIndex());
       setStudiedWords(newStudiedWords);
       
-      // 모든 단어를 학습했는지 확인
       if (newStudiedWords.size >= chapterWords.length) {
         setShowEndDialog(true);
       }
     } else {
-      // 마지막 단어
       setNextChapterDirection('next');
       setShowConfirmDialog(true);
     }
@@ -93,7 +90,6 @@ function Review({ chapter, setChapter, maxChapter }) {
       setCurrentWordIndex((prev) => prev - 1);
       setShowContent(false);
     } else {
-      // 첫 단어
       setNextChapterDirection('prev');
       setShowConfirmDialog(true);
     }
@@ -119,7 +115,6 @@ function Review({ chapter, setChapter, maxChapter }) {
         }
       }
     } else {
-      // 취소시 첫 단어나 마지막 단어로 이동
       if (nextChapterDirection === 'next') {
         setCurrentWordIndex(0);
         setShowContent(false);
@@ -198,10 +193,8 @@ function Review({ chapter, setChapter, maxChapter }) {
   // 터치/클릭으로 내용 보이기
   const handleCardClick = () => {
     if (!showContent) {
-      // 단어만 보이는 상태 → 뜻 표시
       setShowContent(true);
     } else {
-      // 뜻이 보이는 상태 → 다음 단어
       handleNextWord();
     }
   };
@@ -212,7 +205,7 @@ function Review({ chapter, setChapter, maxChapter }) {
     setShowContent(false);
     setCurrentWordIndex(0);
     setStudiedWords(new Set());
-    setShowSettings(false); // 모달 닫기
+    setShowSettings(false);
   };
 
   // 스와이프 감지
@@ -235,10 +228,8 @@ function Review({ chapter, setChapter, maxChapter }) {
 
     if (Math.abs(swipeDistanceX) > minSwipeDistance) {
       if (swipeDistanceX > 0) {
-        // 왼쪽으로 스와이프 = 다음 단어
         handleNextWord();
       } else {
-        // 오른쪽으로 스와이프 = 이전 단어
         handlePrevWord();
       }
     }
@@ -246,6 +237,44 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   return (
     <div className="review-container">
+      {/* 상단 컨트롤 바 (박스 밖) */}
+      <div className="review-controls">
+        <button
+          className="review-level-btn-outside"
+          onClick={openChapterModal}
+        >
+          Level {chapter}
+          <span className="level-arrow">▼</span>
+        </button>
+
+        <button
+          className="review-random-btn-outside"
+          onClick={handleRandomModeToggle}
+        >
+          단어 순서 랜덤 : {isRandomMode ? 'ON' : 'OFF'}
+        </button>
+
+        <button
+          className="review-settings-btn-outside"
+          onClick={() => setShowSettings(!showSettings)}
+        >
+          ⚙️
+        </button>
+      </div>
+
+      {/* 설정 패널 */}
+      {showSettings && (
+        <div className="review-settings-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="setting-item">
+            <label>학습 모드:</label>
+            <select value={reviewMode} onChange={handleReviewModeChange}>
+              <option value="word-first">단어 → 뜻</option>
+              <option value="meaning-first">뜻 → 단어</option>
+            </select>
+          </div>
+        </div>
+      )}
+
       {/* 단어 카드 */}
       <div
         className="flashcard review-flashcard"
@@ -254,56 +283,6 @@ function Review({ chapter, setChapter, maxChapter }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Level 표시 (주황색 박스) */}
-        <button
-          className="review-level-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            openChapterModal();
-          }}
-        >
-          Level {chapter}
-          <span className="level-arrow">▼</span>
-        </button>
-
-        {/* 설정 버튼 */}
-        <button
-          className="settings-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowSettings(!showSettings);
-          }}
-        >
-          ⚙️
-        </button>
-
-        {/* 랜덤 학습 버튼 */}
-        <button
-          className="random-btn-text"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleRandomModeToggle();
-          }}
-        >
-          단어 순서 랜덤 : {isRandomMode ? 'ON' : 'OFF'}
-        </button>
-
-        {/* 설정 패널 */}
-        {showSettings && (
-          <div className="settings-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="setting-item">
-              <label>학습 모드:</label>
-              <select
-                value={reviewMode}
-                onChange={handleReviewModeChange}
-              >
-                <option value="word-first">단어 → 뜻</option>
-                <option value="meaning-first">뜻 → 단어</option>
-              </select>
-            </div>
-          </div>
-        )}
-
         {/* 단어 먼저 모드 */}
         {reviewMode === 'word-first' && (
           <>
@@ -342,6 +321,18 @@ function Review({ chapter, setChapter, maxChapter }) {
           </>
         )}
 
+        {/* 예문 (네비게이션 위) */}
+        {showContent && (currentWord.example || currentWord.exampleMeaning) && (
+          <div className="flashcard-example-above-nav">
+            {currentWord.example && (
+              <div className="example-en">{currentWord.example}</div>
+            )}
+            {currentWord.exampleMeaning && (
+              <div className="example-ko">{currentWord.exampleMeaning}</div>
+            )}
+          </div>
+        )}
+
         {/* 카드 네비게이션 (박스 맨 아래 고정) */}
         <div className="flashcard-nav-fixed">
           <button
@@ -366,18 +357,6 @@ function Review({ chapter, setChapter, maxChapter }) {
             ▶
           </button>
         </div>
-
-        {/* 예문 (네비게이션 위) */}
-        {showContent && (currentWord.example || currentWord.exampleMeaning) && (
-          <div className="flashcard-example-above-nav">
-            {currentWord.example && (
-              <div className="example-en">{currentWord.example}</div>
-            )}
-            {currentWord.exampleMeaning && (
-              <div className="example-ko">{currentWord.exampleMeaning}</div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* 챕터 이동 확인 다이얼로그 */}
