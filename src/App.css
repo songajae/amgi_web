@@ -977,33 +977,6 @@ body {
   margin-top: 8px;
 }
 
-/* 좌우 삼각형 버튼: 작게, 박스 없음 */
-.page-nav-btn {
-  background: transparent;
-  border: none;
-  color: #ffffffaa;
-  font-size: 20px;  /* 아이콘 크기 */
-  padding: 0;       /* 여백 0 */
-  cursor: pointer;
-}
-
-.page-nav-btn:disabled {
-  color: #555555;
-  cursor: default;
-}
-
-/* 가운데 1 / 40 텍스트: 여백 0, 작은 글씨, 글자만 주황 */
-.wordlist-page-indicator {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin: 0;
-  color: #fe623f;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .page-info {
   color: #ffffff;
   font-size: 16px;

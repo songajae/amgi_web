@@ -333,27 +333,21 @@ function WordList({ chapter, setChapter, maxChapter }) {
             ))}
           </div>
 
-          {/* 페이지네이션 */}
+          {/* 페이지네이션 - 홈 카드 네비게이션과 동일 스타일 */}
           <div className="word-card-footer">
             <div className="wordlist-pagination">
               <button
-                className="page-nav-btn"
+                className="nav-btn"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
                 ◀
               </button>
-
-              {/* 가운데 페이지 인디케이터 (여백 0, 작은 글씨) */}
-              <button
-                className="wordlist-page-indicator"
-                onClick={handlePageModeClick}
-              >
+              <span className="word-indicator">
                 {page} / {totalPages}
-              </button>
-
+              </span>
               <button
-                className="page-nav-btn"
+                className="nav-btn"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
               >
