@@ -23,13 +23,11 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   const CHAPTERS_PER_PAGE = 10;
 
-  // 현재 챕터의 단어들
   const chapterWords = useMemo(
     () => words.filter((w) => (w.chapter || 1) === chapter),
     [chapter]
   );
 
-  // 랜덤 순서 생성
   useEffect(() => {
     if (isRandomMode && chapterWords.length > 0) {
       const indices = Array.from({ length: chapterWords.length }, (_, i) => i);
@@ -41,14 +39,12 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   }, [isRandomMode, chapterWords.length, chapter]);
 
-  // 챕터가 변경되면 리셋
   useEffect(() => {
     setCurrentWordIndex(0);
     setShowContent(false);
     setStudiedWords(new Set());
   }, [chapter]);
 
-  // 랜덤 모드 변경 시 초기화
   const handleRandomModeToggle = () => {
     setIsRandomMode(!isRandomMode);
     setCurrentWordIndex(0);
@@ -65,7 +61,6 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   const currentWord = chapterWords[getCurrentIndex()] || {};
 
-  // 다음 단어로 이동
   const handleNextWord = () => {
     if (currentWordIndex < chapterWords.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
@@ -84,7 +79,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
-  // 이전 단어로 이동
   const handlePrevWord = () => {
     if (currentWordIndex > 0) {
       setCurrentWordIndex((prev) => prev - 1);
@@ -95,7 +89,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
-  // 챕터 이동 확인 다이얼로그
   const handleConfirmChapterChange = (confirm) => {
     setShowConfirmDialog(false);
     if (confirm) {
@@ -138,7 +131,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
-  // 챕터 변경
   const handleChangeChapter = (nextChapter) => {
     setChapter(nextChapter);
     setCurrentWordIndex(0);
@@ -153,7 +145,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     setShowChapterModal(true);
   };
 
-  // 챕터 리스트
   const chapterList = Array.from({ length: maxChapter }, (_, i) => i + 1);
   const chapterTotalPages = Math.max(
     1,
@@ -165,7 +156,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     startChapterIndex + CHAPTERS_PER_PAGE
   );
 
-  // pos와 meaning 파싱
   const parseMeanings = (pos, meaning) => {
     if (!meaning) return [];
     
@@ -190,7 +180,6 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   const meanings = parseMeanings(currentWord.pos, currentWord.meaning);
 
-  // 터치/클릭으로 내용 보이기
   const handleCardClick = () => {
     if (!showContent) {
       setShowContent(true);
@@ -199,7 +188,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
-  // 학습 모드 변경 및 설정 닫기
   const handleReviewModeChange = (e) => {
     setReviewMode(e.target.value);
     setShowContent(false);
@@ -208,7 +196,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     setShowSettings(false);
   };
 
-  // 스와이프 감지
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
@@ -251,7 +238,7 @@ function Review({ chapter, setChapter, maxChapter }) {
           className="review-random-btn-outside"
           onClick={handleRandomModeToggle}
         >
-          단어 순서 랜덤 : {isRandomMode ? 'ON' : 'OFF'}
+          랜덤 : {isRandomMode ? 'ON' : 'OFF'}
         </button>
 
         <button
@@ -285,7 +272,7 @@ function Review({ chapter, setChapter, maxChapter }) {
       >
         {/* 단어 먼저 모드 */}
         {reviewMode === 'word-first' && (
-          <>
+          <div className="review-content-top">
             <div className="flashcard-word">{currentWord.word || 'No word'}</div>
             
             {showContent && (
@@ -297,14 +284,26 @@ function Review({ chapter, setChapter, maxChapter }) {
                     </div>
                   ))}
                 </div>
+
+                {/* 예문 */}
+                {(currentWord.example || currentWord.exampleMeaning) && (
+                  <div className="flashcard-example-inline">
+                    {currentWord.example && (
+                      <div className="example-en">{currentWord.example}</div>
+                    )}
+                    {currentWord.exampleMeaning && (
+                      <div className="example-ko">{currentWord.exampleMeaning}</div>
+                    )}
+                  </div>
+                )}
               </>
             )}
-          </>
+          </div>
         )}
 
         {/* 뜻 먼저 모드 */}
         {reviewMode === 'meaning-first' && (
-          <>
+          <div className="review-content-top">
             <div className="flashcard-meanings meanings-first">
               {meanings.map((m, index) => (
                 <div key={index} className="flashcard-meaning">
@@ -316,19 +315,19 @@ function Review({ chapter, setChapter, maxChapter }) {
             {showContent && (
               <>
                 <div className="flashcard-word">{currentWord.word || 'No word'}</div>
-              </>
-            )}
-          </>
-        )}
 
-        {/* 예문 (네비게이션 위) */}
-        {showContent && (currentWord.example || currentWord.exampleMeaning) && (
-          <div className="flashcard-example-above-nav">
-            {currentWord.example && (
-              <div className="example-en">{currentWord.example}</div>
-            )}
-            {currentWord.exampleMeaning && (
-              <div className="example-ko">{currentWord.exampleMeaning}</div>
+                {/* 예문 */}
+                {(currentWord.example || currentWord.exampleMeaning) && (
+                  <div className="flashcard-example-inline">
+                    {currentWord.example && (
+                      <div className="example-en">{currentWord.example}</div>
+                    )}
+                    {currentWord.exampleMeaning && (
+                      <div className="example-ko">{currentWord.exampleMeaning}</div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
