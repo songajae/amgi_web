@@ -13,16 +13,21 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
     sans-serif;
   background: #000000;
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
 }
 
 /* 어떤 폰이든 전체 화면 사용 */
 .app-root {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background: #282626;
   color: #ffffff;
+  overflow: hidden;
 }
 
 /* ===== 상단 상태바 ===== */
@@ -32,6 +37,7 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .status-time {
@@ -51,6 +57,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .top-title {
@@ -78,11 +85,13 @@ body {
 /* ===== 메인 콘텐츠 ===== */
 .main-content {
   flex: 1;
+  min-height: 0;
   padding: 8px 16px 12px;
   display: flex;
   justify-content: center;
   align-items: stretch;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* ===== 단어 카드 ===== */
@@ -143,11 +152,13 @@ body {
 .word-left {
   font-weight: 600;
   min-width: 90px;
+  word-break: break-word;
 }
 
 .word-right {
   flex: 1;
   text-align: left;
+  word-break: keep-all;
 }
 
 .word-pos {
@@ -190,6 +201,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .bottom-nav-btn {
@@ -227,8 +239,8 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding-top: 60px; /* 윗 라인 아래부터 리스트 시작 (72px -> 60px로 줄임) */
-  padding-bottom: 70px; /* 아래 공간 확보 */
+  padding-top: 60px;
+  padding-bottom: 70px;
 }
 
 /* 윗 라인: 박스 폭 기준 중앙 정렬 */
@@ -236,9 +248,9 @@ body {
   content: '';
   position: absolute;
   left: 50%;
-  top: 42px; /* 48px -> 42px로 줄임 */
+  top: 42px;
   transform: translateX(-50%);
-  width: calc(100% - 60px); /* 양쪽 여백 30px 정도 */
+  width: calc(100% - 60px);
   border-top: 1px solid #000000;
 }
 
@@ -257,10 +269,10 @@ body {
 .chapter-modal-list {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 40px; /* 0 -> 8px 위아래 여백 추가 */
+  padding: 8px 40px;
   display: flex;
   flex-direction: column;
-  gap: 6px; /* 10px -> 6px로 줄임 */
+  gap: 6px;
 }
 
 /* 한 줄 챕터 항목 */
@@ -270,17 +282,17 @@ body {
   background: transparent;
   color: #000000;
   text-align: left;
-  font-size: 22px; /* 24px -> 22px로 살짝 줄임 */
+  font-size: 22px;
   padding: 0;
   cursor: pointer;
-  line-height: 1.3; /* 줄 간격 설정 */
+  line-height: 1.3;
 }
 
 .chapter-modal-item.active {
   font-weight: 700;
 }
 
-/* 하단 페이지 표시 (예: 1 / 3) */
+/* 하단 페이지 표시 */
 .chapter-modal-footer {
   position: absolute;
   left: 50%;
@@ -290,7 +302,7 @@ body {
   color: #000000;
 }
 
-/* 모달 페이지 이동 버튼 (옵션) */
+/* 모달 페이지 이동 버튼 */
 .chapter-modal-page-buttons {
   position: absolute;
   right: 18px;
@@ -321,6 +333,7 @@ body {
 .home-container {
   width: 100%;
   height: 100%;
+  max-width: 700px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -337,15 +350,19 @@ body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  position: relative;
 }
 
 .flashcard-word {
   color: #ffffff;
-  font-size: 72px;
+  font-size: clamp(48px, 10vw, 72px);
   font-weight: 400;
   text-align: center;
   margin: 20px 0 10px 0;
   flex-shrink: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.1;
 }
 
 .flashcard-meanings {
@@ -358,14 +375,15 @@ body {
 
 .flashcard-meaning {
   color: #ffffff;
-  font-size: 28px;
+  font-size: clamp(20px, 4vw, 28px);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.3;
+  word-break: keep-all;
 }
 
 .pos-tag {
   color: #ffffff;
-  font-size: 28px;
+  font-size: clamp(20px, 4vw, 28px);
   font-weight: 700;
 }
 
@@ -376,20 +394,24 @@ body {
   gap: 8px;
   padding: 0 16px;
   flex-shrink: 0;
+  max-height: 30%;
+  overflow-y: auto;
 }
 
 .example-en {
   color: #d6d6d6;
-  font-size: 18px;
+  font-size: 16px;
   text-align: left;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .example-ko {
   color: #d6d6d6;
-  font-size: 15px;
+  font-size: 14px;
   text-align: left;
   line-height: 1.4;
+  word-break: keep-all;
 }
 
 .flashcard-nav {
@@ -426,6 +448,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
+  height: 118px;
 }
 
 .youtube-link {
@@ -434,6 +457,7 @@ body {
   padding: 12px;
   text-decoration: none;
   color: inherit;
+  height: 100%;
 }
 
 .youtube-thumbnail {
@@ -456,6 +480,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
 
 .youtube-title {
@@ -467,80 +492,7 @@ body {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-}
-
-/* 설정 버튼 */
-.settings-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-/* 설정 패널 */
-.settings-panel {
-  position: absolute;
-  top: 50px;
-  right: 16px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 10;
-  min-width: 200px;
-}
-
-.setting-item {
-  margin-bottom: 12px;
-  color: #000000;
-  font-size: 14px;
-}
-
-.setting-item:last-child {
-  margin-bottom: 0;
-}
-
-.setting-item label {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.setting-item input[type="checkbox"] {
-  margin-right: 8px;
-  width: 18px;
-  height: 18px;
-}
-
-.setting-item input[type="range"] {
-  width: 100%;
-}
-
-/* 플래시카드 위치 조정 */
-.flashcard {
-  position: relative;
-}
-
-
-/* ===== 복습 화면 ===== */
-.review-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 복습 플래시카드 - 전체 공간 사용 */
-.review-flashcard {
-  width: 100%;
-  max-width: 700px;
-  height: 100%;
+  word-break: break-word;
 }
 
 /* Level 타이틀 버튼 (왼쪽 상단) */
@@ -568,20 +520,6 @@ body {
   font-size: 24px;
   cursor: pointer;
   z-index: 10;
-}
-
-/* 랜덤 버튼 (오른쪽 상단, 설정 버튼 왼쪽) */
-.random-btn {
-  position: absolute;
-  top: 16px;
-  right: 56px;
-  background: transparent;
-  border: none;
-  color: #ffffff;
-  font-size: 18px;
-  cursor: pointer;
-  z-index: 10;
-  padding: 4px 8px;
 }
 
 /* 설정 패널 */
@@ -631,13 +569,98 @@ body {
   margin-top: 4px;
 }
 
-/* 복습 화면 예문 위치 조정 */
-.review-example {
+/* ===== 복습 화면 ===== */
+.review-container {
+  width: 100%;
+  height: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  touch-action: pan-y;
+}
+
+/* 복습 플래시카드 */
+.review-flashcard {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 60px;
+  padding-left: 16px;
+  padding-right: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.review-flashcard .flashcard-word {
+  margin: 40px 0 20px 0;
+  font-size: clamp(40px, 9vw, 64px);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  padding: 0 8px;
+  text-align: center;
+}
+
+.review-flashcard .flashcard-meanings {
+  margin-bottom: 20px;
+}
+
+.review-flashcard .flashcard-nav {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+
+/* 랜덤 버튼 텍스트 스타일 */
+.random-btn-text {
   position: absolute;
-  top: 75%;
-  left: 16px;
-  right: 16px;
-  transform: translateY(-50%);
+  top: 16px;
+  right: 56px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 10;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+/* 예문을 네비게이션 아래에 배치 */
+.flashcard-example-below {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+  max-width: 100%;
+}
+
+.flashcard-example-below .example-en {
+  color: #d6d6d6;
+  font-size: 16px;
+  text-align: left;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.flashcard-example-below .example-ko {
+  color: #d6d6d6;
+  font-size: 14px;
+  text-align: left;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+/* 뜻 먼저 모드일 때 스타일 */
+.meanings-first {
+  margin-top: 80px;
 }
 
 /* 챕터 끝 다이얼로그 */
@@ -697,95 +720,6 @@ body {
   background: #fe623f;
   color: #ffffff;
 }
-
-/* 플래시카드 위치 조정 */
-.flashcard {
-  position: relative;
-  cursor: pointer;
-  user-select: none;
-}
-
-.review-flashcard {
-  cursor: pointer;
-}
-
-/* 복습 화면 컨테이너 */
-.review-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  touch-action: pan-y;
-}
-
-/* 랜덤 버튼 텍스트 스타일 */
-.random-btn-text {
-  position: absolute;
-  top: 16px;
-  right: 56px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 13px;
-  cursor: pointer;
-  z-index: 10;
-  padding: 6px 12px;
-  white-space: nowrap;
-}
-
-/* 예문을 네비게이션 아래에 배치 */
-.flashcard-example-below {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 0 16px;
-}
-
-.flashcard-example-below .example-en {
-  color: #d6d6d6;
-  font-size: 16px;
-  text-align: left;
-  line-height: 1.4;
-}
-
-.flashcard-example-below .example-ko {
-  color: #d6d6d6;
-  font-size: 14px;
-  text-align: left;
-  line-height: 1.4;
-}
-
-/* 뜻 먼저 모드일 때 스타일 */
-.meanings-first {
-  margin-top: 80px;
-}
-
-/* 복습 플래시카드 레이아웃 조정 */
-.review-flashcard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 60px;
-}
-
-.review-flashcard .flashcard-word {
-  margin: 40px 0 20px 0;
-}
-
-.review-flashcard .flashcard-meanings {
-  margin-bottom: 20px;
-}
-
-.review-flashcard .flashcard-nav {
-  margin-top: 40px;
-  margin-bottom: 0;
-}
-
 
 /* ===== About 화면 ===== */
 .about-container {
@@ -868,79 +802,6 @@ body {
   margin: 0;
 }
 
-/* 표시 모드 선택 버튼 */
-.display-mode-selector {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  justify-content: center;
-}
-
-.mode-btn {
-  flex: 1;
-  padding: 10px 16px;
-  background: #313131;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.mode-btn.active {
-  background: #fe623f;
-  border-color: #fe623f;
-  font-weight: 600;
-}
-
-/* 단어 리스트 아이템 레이아웃 */
-.wordlist-item {
-  display: flex;
-  cursor: pointer;
-  user-select: none;
-}
-
-.wordlist-left {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60px;
-}
-
-.wordlist-right {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60px;
-}
-
-.wordlist-word {
-  font-size: 18px;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.wordlist-meanings {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.wordlist-meaning {
-  font-size: 14px;
-  color: #d6d6d6;
-  line-height: 1.4;
-}
-
-.pos-tag-small {
-  color: #fe623f;
-  font-weight: 600;
-  font-size: 12px;
-}
-
 /* ===== 단어장 화면 ===== */
 .wordlist-settings-btn {
   position: fixed;
@@ -1013,6 +874,7 @@ body {
   font-weight: 600;
   width: 35%;
   vertical-align: middle;
+  word-break: break-word;
 }
 
 .meaning-cell {
@@ -1022,6 +884,7 @@ body {
   width: 65%;
   vertical-align: middle;
   line-height: 1.5;
+  word-break: keep-all;
 }
 
 .wordlist-controls {
@@ -1058,4 +921,11 @@ body {
   padding: 12px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.pos-tag-small {
+  color: #fe623f;
+  font-weight: 600;
+  font-size: 12px;
+  margin-right: 4px;
 }
