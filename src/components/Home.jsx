@@ -182,6 +182,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           onClick={openChapterModal}
         >
           Level {chapter}
+          <span className="level-arrow">▼</span>
         </button>
 
         {/* 설정 버튼 */}
