@@ -961,3 +961,66 @@ body {
   font-size: 12px;
   margin-right: 4px;
 }
+
+
+/* Review Level 버튼 (주황색 박스 - WordList와 동일) */
+.review-level-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: #fe623f;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
+  z-index: 10;
+}
+
+/* 네비게이션을 박스 맨 아래 고정 */
+.flashcard-nav-fixed {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* 예문을 네비게이션 바로 위에 배치 */
+.flashcard-example-above-nav {
+  position: absolute;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.flashcard-example-above-nav .example-en {
+  color: #d6d6d6;
+  font-size: 16px;
+  text-align: left;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.flashcard-example-above-nav .example-ko {
+  color: #d6d6d6;
+  font-size: 14px;
+  text-align: left;
+  line-height: 1.4;
+  word-break: keep-all;
+}

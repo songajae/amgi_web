@@ -206,6 +206,15 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
+  // 학습 모드 변경 및 설정 닫기
+  const handleReviewModeChange = (e) => {
+    setReviewMode(e.target.value);
+    setShowContent(false);
+    setCurrentWordIndex(0);
+    setStudiedWords(new Set());
+    setShowSettings(false); // 모달 닫기
+  };
+
   // 스와이프 감지
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -245,15 +254,16 @@ function Review({ chapter, setChapter, maxChapter }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Level 표시 (왼쪽 상단) */}
+        {/* Level 표시 (주황색 박스) */}
         <button
-          className="level-title-button"
+          className="review-level-btn"
           onClick={(e) => {
             e.stopPropagation();
             openChapterModal();
           }}
         >
           Level {chapter}
+          <span className="level-arrow">▼</span>
         </button>
 
         {/* 설정 버튼 */}
@@ -285,12 +295,7 @@ function Review({ chapter, setChapter, maxChapter }) {
               <label>학습 모드:</label>
               <select
                 value={reviewMode}
-                onChange={(e) => {
-                  setReviewMode(e.target.value);
-                  setShowContent(false);
-                  setCurrentWordIndex(0);
-                  setStudiedWords(new Set());
-                }}
+                onChange={handleReviewModeChange}
               >
                 <option value="word-first">단어 → 뜻</option>
                 <option value="meaning-first">뜻 → 단어</option>
@@ -313,16 +318,6 @@ function Review({ chapter, setChapter, maxChapter }) {
                     </div>
                   ))}
                 </div>
-                
-                {/* 예문 */}
-                {currentWord.example && (
-                  <div className="flashcard-example-below">
-                    <div className="example-en">{currentWord.example}</div>
-                    {currentWord.exampleMeaning && (
-                      <div className="example-ko">{currentWord.exampleMeaning}</div>
-                    )}
-                  </div>
-                )}
               </>
             )}
           </>
@@ -342,23 +337,13 @@ function Review({ chapter, setChapter, maxChapter }) {
             {showContent && (
               <>
                 <div className="flashcard-word">{currentWord.word || 'No word'}</div>
-                
-                {/* 예문 */}
-                {currentWord.example && (
-                  <div className="flashcard-example-below">
-                    <div className="example-en">{currentWord.example}</div>
-                    {currentWord.exampleMeaning && (
-                      <div className="example-ko">{currentWord.exampleMeaning}</div>
-                    )}
-                  </div>
-                )}
               </>
             )}
           </>
         )}
 
-        {/* 카드 네비게이션 (화면 아래로 이동) */}
-        <div className="flashcard-nav">
+        {/* 카드 네비게이션 (박스 맨 아래 고정) */}
+        <div className="flashcard-nav-fixed">
           <button
             className="nav-btn"
             onClick={(e) => {
@@ -381,6 +366,18 @@ function Review({ chapter, setChapter, maxChapter }) {
             ▶
           </button>
         </div>
+
+        {/* 예문 (네비게이션 위) */}
+        {showContent && (currentWord.example || currentWord.exampleMeaning) && (
+          <div className="flashcard-example-above-nav">
+            {currentWord.example && (
+              <div className="example-en">{currentWord.example}</div>
+            )}
+            {currentWord.exampleMeaning && (
+              <div className="example-ko">{currentWord.exampleMeaning}</div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 챕터 이동 확인 다이얼로그 */}
