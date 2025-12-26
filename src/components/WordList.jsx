@@ -83,7 +83,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
 
     if (Math.abs(swipeDistanceX) > minSwipeDistance) {
       if (swipeDistanceX > 0) {
-        // 왼쪽 스와이프 = 다음 페이지
         if (page < totalPages) {
           setPage((p) => p + 1);
         } else if (chapter < maxChapter) {
@@ -91,7 +90,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
           setShowConfirmDialog(true);
         }
       } else {
-        // 오른쪽 스와이프 = 이전 페이지
         if (page > 1) {
           setPage((p) => p - 1);
         } else if (chapter > 1) {
@@ -147,6 +145,13 @@ function WordList({ chapter, setChapter, maxChapter }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* 챕터 선택 버튼 */}
+        <button className="wordlist-level-btn" onClick={openChapterModal}>
+          Level {chapter}
+          <span className="level-arrow">▼</span>
+        </button>
+
+        {/* 챕터이름과 페이지 정보 */}
         <div className="wordlist-header">
           <span className="header-label">챕터이름</span>
           <span className="header-value">
@@ -169,19 +174,20 @@ function WordList({ chapter, setChapter, maxChapter }) {
           </tbody>
         </table>
 
-        <div className="wordlist-controls">
+        {/* 페이지 이동 버튼 */}
+        <div className="wordlist-pagination">
           <button
-            className="page-btn"
+            className="page-nav-btn"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             ◀
           </button>
-          <button className="chapter-btn" onClick={openChapterModal}>
-            챕터 선택
-          </button>
+          <span className="page-info">
+            {page} / {totalPages}
+          </span>
           <button
-            className="page-btn"
+            className="page-nav-btn"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
           >
@@ -230,7 +236,7 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   }
                   onClick={() => handleChangeChapter(ch)}
                 >
-                  ch{ch}. 챕터이름(40)
+                  ch{ch}. Level {ch}(40)
                 </button>
               ))}
             </div>
