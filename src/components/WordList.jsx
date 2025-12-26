@@ -185,11 +185,23 @@ function WordList({ chapter, setChapter, maxChapter }) {
   };
 
   // 실제 표시 여부 결정
-  // 단어 표시: (둘다보기 OR 단어만) AND 터치로 숨기지 않음
-  const shouldShowWord = (displayMode === 'both' || displayMode === 'word-only') && showWordsByTouch;
-  
-  // 뜻 표시: (둘다보기 OR 뜻만) AND 터치로 숨기지 않음
-  const shouldShowMeaning = (displayMode === 'both' || displayMode === 'meaning-only') && showMeaningsByTouch;
+  // 왼쪽 셀: displayMode에 따라 기본 표시 여부 결정 + 터치 상태
+  const getWordDisplay = () => {
+    // 터치로 숨긴 경우 무조건 숨김
+    if (!showWordsByTouch) return false;
+    
+    // 터치로 숨기지 않은 경우 displayMode 확인
+    return displayMode === 'both' || displayMode === 'word-only';
+  };
+
+  // 오른쪽 셀: displayMode에 따라 기본 표시 여부 결정 + 터치 상태
+  const getMeaningDisplay = () => {
+    // 터치로 숨긴 경우 무조건 숨김
+    if (!showMeaningsByTouch) return false;
+    
+    // 터치로 숨기지 않은 경우 displayMode 확인
+    return displayMode === 'both' || displayMode === 'meaning-only';
+  };
 
   return (
     <>
@@ -221,13 +233,13 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   className="word-cell-50"
                   onClick={(e) => handleCellClick(e, 'left')}
                 >
-                  {shouldShowWord && word.word}
+                  {getWordDisplay() && word.word}
                 </td>
                 <td 
                   className="meaning-cell-50"
                   onClick={(e) => handleCellClick(e, 'right')}
                 >
-                  {shouldShowMeaning && getTwoMeanings(word.meaning)}
+                  {getMeaningDisplay() && getTwoMeanings(word.meaning)}
                 </td>
               </tr>
             ))}
