@@ -338,32 +338,30 @@ function WordList({ chapter, setChapter, maxChapter }) {
             <div className="wordlist-pagination">
               <button
                 className="page-nav-btn"
-                onClick={() =>
-                  setPage((p) => Math.max(1, p - 1))
-                }
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
                 ◀
               </button>
 
+              {/* 가운데 페이지 인디케이터 (주황 박스) */}
               <button
-                className="wordlist-page-mode-btn"
+                className="wordlist-page-indicator"
                 onClick={handlePageModeClick}
               >
-                {getDisplayModeText()} · {page} / {totalPages}
+                {page} / {totalPages}
               </button>
 
               <button
                 className="page-nav-btn"
-                onClick={() =>
-                  setPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
               >
                 ▶
               </button>
             </div>
           </div>
+
         </div>
       </div>
 
