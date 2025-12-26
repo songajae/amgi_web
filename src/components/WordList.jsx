@@ -151,14 +151,7 @@ function WordList({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
-        {/* 챕터이름과 페이지 정보 */}
-        <div className="wordlist-header">
-          <span className="header-label">챕터이름</span>
-          <span className="header-value">
-            {page} / {totalPages}
-          </span>
-        </div>
-
+        {/* 단어 테이블 */}
         <table className="wordlist-table">
           <tbody>
             {pageWords.map((word) => (
@@ -236,7 +229,7 @@ function WordList({ chapter, setChapter, maxChapter }) {
                   }
                   onClick={() => handleChangeChapter(ch)}
                 >
-                  ch{ch}. Level {ch}(40)
+                  Level {ch}
                 </button>
               ))}
             </div>
