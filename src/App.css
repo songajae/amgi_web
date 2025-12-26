@@ -589,6 +589,20 @@ body {
   padding-top: 40px;
 }
 
+/* 복습 화면: 뜻/예문 왼쪽 정렬 */
+.review-flashcard .flashcard-meanings {
+  text-align: left;
+}
+
+.review-flashcard .flashcard-meaning {
+  text-align: left;
+}
+
+.review-flashcard .flashcard-example-inline .example-en,
+.review-flashcard .flashcard-example-inline .example-ko {
+  text-align: left;
+}
+
 /* 상단 콘텐츠 래퍼 */
 .review-content-top {
   display: flex;
