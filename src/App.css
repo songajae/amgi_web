@@ -829,11 +829,20 @@ body {
   min-width: 200px;
 }
 
+/* ===== 단어장 화면 ===== */
 .wordlist-wrap {
   width: 100%;
   max-width: 700px;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+/* 상단 버튼 그룹 */
+.wordlist-header-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
 }
 
@@ -844,14 +853,13 @@ body {
   color: #ffffff;
   font-size: 20px;
   font-weight: 700;
-  padding: 2px 2px;         /* 1px 12px → 2px 2px */
+  padding: 2px 2px;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  align-self: flex-start;
   line-height: 1;
 }
 
@@ -860,24 +868,21 @@ body {
   line-height: 1;
 }
 
-
-.wordlist-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 8px;
-}
-
-.header-label {
+/* 표시 모드 버튼 (주황색 박스) */
+.wordlist-mode-btn {
+  background: #fe623f;
+  border: none;
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;
-}
-
-.header-value {
-  color: #fe623f;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .wordlist-table {

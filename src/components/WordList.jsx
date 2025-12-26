@@ -12,7 +12,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [nextChapterDirection, setNextChapterDirection] = useState(null);
   const [displayMode, setDisplayMode] = useState('both');
-  const [showSettings, setShowSettings] = useState(false);
   
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -61,6 +60,22 @@ function WordList({ chapter, setChapter, maxChapter }) {
     const currentPage = Math.floor((chapter - 1) / CHAPTERS_PER_PAGE) + 1;
     setChapterPage(currentPage);
     setShowChapterModal(true);
+  };
+
+  // 표시 모드 순환
+  const toggleDisplayMode = () => {
+    setDisplayMode((prev) => {
+      if (prev === 'both') return 'word-only';
+      if (prev === 'word-only') return 'meaning-only';
+      return 'both';
+    });
+  };
+
+  // 표시 모드 텍스트
+  const getDisplayModeText = () => {
+    if (displayMode === 'both') return '둘다 보기';
+    if (displayMode === 'word-only') return '단어만';
+    return '뜻만';
   };
 
   // 스와이프로 페이지 & 챕터 이동
@@ -114,42 +129,23 @@ function WordList({ chapter, setChapter, maxChapter }) {
 
   return (
     <>
-      {/* 설정 버튼 */}
-      <button
-        className="wordlist-settings-btn"
-        onClick={() => setShowSettings(!showSettings)}
-      >
-        ⚙️
-      </button>
-
-      {/* 설정 패널 */}
-      {showSettings && (
-        <div className="wordlist-settings-panel">
-          <div className="setting-item">
-            <label>표시 모드:</label>
-            <select
-              value={displayMode}
-              onChange={(e) => setDisplayMode(e.target.value)}
-            >
-              <option value="both">둘다 보기</option>
-              <option value="word-only">단어만</option>
-              <option value="meaning-only">뜻만</option>
-            </select>
-          </div>
-        </div>
-      )}
-
       <div
         className="wordlist-wrap"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* 챕터 선택 버튼 */}
-        <button className="wordlist-level-btn" onClick={openChapterModal}>
-          Level {chapter}
-          <span className="level-arrow">▼</span>
-        </button>
+        {/* 상단 버튼 그룹 */}
+        <div className="wordlist-header-buttons">
+          <button className="wordlist-level-btn" onClick={openChapterModal}>
+            Level {chapter}
+            <span className="level-arrow">▼</span>
+          </button>
+
+          <button className="wordlist-mode-btn" onClick={toggleDisplayMode}>
+            {getDisplayModeText()}
+          </button>
+        </div>
 
         {/* 단어 테이블 */}
         <table className="wordlist-table">
