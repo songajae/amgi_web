@@ -311,7 +311,42 @@ function Home({ chapter, setChapter, maxChapter }) {
           className="chapter-modal-backdrop"
           onClick={() => setShowChapterModal(false)}
         >
-          <div className="chapter-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="chapter-modal"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => {
+              touchStartX.current = e.touches[0].clientX;
+              touchStartY.current = e.touches[0].clientY;
+            }}
+            onTouchMove={(e) => {
+              touchEndX.current = e.touches[0].clientX;
+              touchEndY.current = e.touches[0].clientY;
+            }}
+            onTouchEnd={() => {
+              const swipeDistanceX = touchStartX.current - touchEndX.current;
+              const swipeDistanceY = Math.abs(
+                touchStartY.current - touchEndY.current
+              );
+              const minSwipeDistance = 50;
+
+              // 세로 스와이프는 무시
+              if (swipeDistanceY > 50) return;
+
+              if (Math.abs(swipeDistanceX) > minSwipeDistance) {
+                if (swipeDistanceX > 0) {
+                  // 왼쪽 스와이프 = 다음 페이지 (마지막이면 1페이지로 순환)
+                  setChapterPage((prev) =>
+                    prev >= chapterTotalPages ? 1 : prev + 1
+                  );
+                } else {
+                  // 오른쪽 스와이프 = 이전 페이지 (1페이지면 마지막 페이지로 순환)
+                  setChapterPage((prev) =>
+                    prev <= 1 ? chapterTotalPages : prev - 1
+                  );
+                }
+              }
+            }}
+          >
             <div className="chapter-modal-list chapter-modal-grid">
               {chapterPageItems.map((ch) => (
                 <button
@@ -334,24 +369,27 @@ function Home({ chapter, setChapter, maxChapter }) {
 
             <div className="chapter-modal-page-buttons">
               <button
-                onClick={() => setChapterPage((p) => Math.max(1, p - 1))}
-                disabled={chapterPage === 1}
+                onClick={() =>
+                  setChapterPage((p) => (p <= 1 ? chapterTotalPages : p - 1))
+                }
               >
                 ◀
               </button>
               <button
                 onClick={() =>
-                  setChapterPage((p) => Math.min(chapterTotalPages, p + 1))
+                  setChapterPage((p) =>
+                    p >= chapterTotalPages ? 1 : p + 1
+                  )
                 }
-                disabled={chapterPage === chapterTotalPages}
               >
                 ▶
               </button>
             </div>
           </div>
-
         </div>
       )}
+
+
     </div>
   );
 }
