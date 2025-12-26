@@ -344,7 +344,7 @@ function WordList({ chapter, setChapter, maxChapter }) {
                 ◀
               </button>
 
-              {/* 가운데 페이지 인디케이터 (주황 박스) */}
+              {/* 가운데 페이지 인디케이터 (여백 0, 작은 글씨) */}
               <button
                 className="wordlist-page-indicator"
                 onClick={handlePageModeClick}
@@ -361,7 +361,6 @@ function WordList({ chapter, setChapter, maxChapter }) {
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
