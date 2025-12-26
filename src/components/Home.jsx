@@ -192,6 +192,14 @@ function Home({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
+        {/* 자동재생 토글 버튼 */}
+        <button
+          className="home-autoplay-btn"
+          onClick={() => setIsAutoPlay((prev) => !prev)}
+        >
+          {isAutoPlay ? '⏸ 자동재생 중지' : '▶ 자동재생 시작'}
+        </button>
+
         <button
           className="home-settings-btn-outside"
           onClick={() => setShowSettings(!showSettings)}
@@ -199,6 +207,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           ⚙️
         </button>
       </div>
+
 
       {/* 단어 카드 */}
       <div
@@ -221,16 +230,6 @@ function Home({ chapter, setChapter, maxChapter }) {
             </button>
             <div className="setting-item">
               <label>
-                <input
-                  type="checkbox"
-                  checked={isAutoPlay}
-                  onChange={(e) => setIsAutoPlay(e.target.checked)}
-                />
-                자동 재생
-              </label>
-            </div>
-            <div className="setting-item">
-              <label>
                 단어 전환 시간: {autoPlayInterval / 1000}초
                 <input
                   type="range"
@@ -244,6 +243,7 @@ function Home({ chapter, setChapter, maxChapter }) {
             </div>
           </div>
         )}
+
 
 
         {/* 단어: 항상 표시 */}
