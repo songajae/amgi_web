@@ -15,13 +15,15 @@ function Review({ chapter, setChapter, maxChapter }) {
   const [reviewMode, setReviewMode] = useState('word-first');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [nextChapterDirection, setNextChapterDirection] = useState(null);
+  const [modalTouchStart, setModalTouchStart] = useState(0);
+  const [modalTouchEnd, setModalTouchEnd] = useState(0);
   
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
-  const CHAPTERS_PER_PAGE = 10;
+  const CHAPTERS_PER_PAGE = 20; // 2열 x 10행
 
   const chapterWords = useMemo(
     () => words.filter((w) => (w.chapter || 1) === chapter),
@@ -222,6 +224,28 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
+  // 모달 스와이프 핸들러
+  const handleModalTouchStart = (e) => {
+    setModalTouchStart(e.touches[0].clientX);
+  };
+
+  const handleModalTouchEnd = (e) => {
+    setModalTouchEnd(e.changedTouches[0].clientX);
+    
+    const swipeDistance = modalTouchStart - e.changedTouches[0].clientX;
+    const minSwipeDistance = 50;
+    
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      if (swipeDistance > 0) {
+        // 왼쪽으로 스와이프 -> 다음 페이지
+        setChapterPage((p) => Math.min(chapterTotalPages, p + 1));
+      } else {
+        // 오른쪽으로 스와이프 -> 이전 페이지
+        setChapterPage((p) => Math.max(1, p - 1));
+      }
+    }
+  };
+
   return (
     <div className="review-container">
       {/* 상단 컨트롤 바 (박스 밖) */}
@@ -405,31 +429,38 @@ function Review({ chapter, setChapter, maxChapter }) {
       )}
 
       {/* 챕터 선택 모달 */}
-{showChapterModal && (
-  <div
-    className="chapter-modal-backdrop"
-    onClick={() => setShowChapterModal(false)}
-  >
-    <div className="chapter-modal" onClick={(e) => e.stopPropagation()}>
-      <div className="chapter-modal-list">
-  <div className="chapter-modal-grid">
-    {chapterPageItems.map((ch) => (
-      <button
-        key={ch}
-        className={
-          ch === chapter
-            ? 'chapter-modal-item active'
-            : 'chapter-modal-item'
-        }
-        onClick={() => handleChangeChapter(ch)}
-      >
-        Level {ch}
-      </button>
-    ))}
-  </div>
-</div>
+      {showChapterModal && (
+        <div
+          className="chapter-modal-backdrop"
+          onClick={() => setShowChapterModal(false)}
+        >
+          <div 
+            className="chapter-modal" 
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleModalTouchStart}
+            onTouchEnd={handleModalTouchEnd}
+          >
+            <div className="chapter-modal-list">
+              <div className="chapter-modal-grid">
+                {chapterPageItems.map((ch) => (
+                  <button
+                    key={ch}
+                    className={
+                      ch === chapter
+                        ? 'chapter-modal-item active'
+                        : 'chapter-modal-item'
+                    }
+                    onClick={() => handleChangeChapter(ch)}
+                  >
+                    Level {ch}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-
+            <div className="chapter-modal-footer">
+              {chapterPage} / {chapterTotalPages}
+            </div>
 
             <div className="chapter-modal-page-buttons">
               <button

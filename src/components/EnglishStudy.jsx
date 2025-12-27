@@ -164,15 +164,13 @@ function EnglishStudy({ chapter, setChapter }) {
           <div className="subtitle-list">
             {pageSubtitles.map((subtitle) => (
               <div
-                key={subtitle.id}
-                className={`subtitle-item ${
-                  currentTime >= subtitle.startTime &&
-                  currentTime < subtitle.startTime + 6
-                    ? 'active'
-                    : ''
-                }`}
-                onClick={() => handleSubtitleClick(subtitle.startTime)}
-              >
+  key={subtitle.id}
+  className={`subtitle-item ${
+    Math.abs(currentTime - subtitle.startTime) <= 3 ? 'active' : ''
+  }`}
+  onClick={() => handleSubtitleClick(subtitle.startTime)}
+>
+
                 <span className="subtitle-time">{formatTime(subtitle.startTime)}</span>
                 <span className="subtitle-text">{subtitle.text}</span>
               </div>
