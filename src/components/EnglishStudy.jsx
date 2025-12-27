@@ -177,7 +177,7 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    const targetOffset = (containerHeight * 9) / 10;
+    const targetOffset = containerHeight // (containerHeight * 9) / 10;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
 
