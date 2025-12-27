@@ -109,25 +109,35 @@ function EnglishStudy({ chapter, setChapter }) {
     // 재생 상태 변경 처리 (필요시)
   };
 
-  // active 자막 자동 스크롤
-  useEffect(() => {
-    if (activeSubtitleRef.current && subtitleListRef.current) {
-      const container = subtitleListRef.current;
+// active 자막 자동 스크롤
+useEffect(() => {
+  if (subtitleListRef.current) {
+    const container = subtitleListRef.current;
+    
+    // active 자막이 있으면 스크롤
+    if (activeSubtitleRef.current) {
       const activeElement = activeSubtitleRef.current;
-      
       const containerHeight = container.clientHeight;
       const activeTop = activeElement.offsetTop;
       const activeHeight = activeElement.clientHeight;
       
-      // active 항목이 컨테이너 중앙에 오도록 스크롤
-      const scrollPosition = activeTop - (containerHeight / 2) + (activeHeight / 2);
+      // active 항목이 컨테이너 상단 1/3 위치에 오도록 스크롤
+      const scrollPosition = activeTop - (containerHeight / 3);
       
       container.scrollTo({
-        top: scrollPosition,
+        top: Math.max(0, scrollPosition),
         behavior: 'smooth'
       });
+    } else {
+      // active 자막이 없으면 맨 위로 스크롤
+      container.scrollTo({
+        top: 0,
+        behavior: 'auto'
+      });
     }
-  }, [currentTime, currentPage]);
+  }
+}, [currentTime, currentPage]);
+
 
   // 자막 클릭 → 해당 시간으로 이동
   const handleSubtitleClick = (startTime) => {
@@ -203,24 +213,25 @@ function EnglishStudy({ chapter, setChapter }) {
 
         {/* 페이지네이션 */}
         <div className="pagination-container">
-          <button
-            className="pagination-btn"
+        <button
+            className="nav-btn"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-          >
+        >
             ◀
-          </button>
-          <span className="page-indicator">
+        </button>
+        <span className="word-indicator">
             {currentPage} / {totalPages}
-          </span>
-          <button
-            className="pagination-btn"
+        </span>
+        <button
+            className="nav-btn"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-          >
+        >
             ▶
-          </button>
+        </button>
         </div>
+
       </div>
 
       {/* 챕터 선택 모달 */}

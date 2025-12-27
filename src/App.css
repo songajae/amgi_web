@@ -92,14 +92,15 @@ body {
 /* ===== 하단 네비게이션 (BottomNav.jsx) ===== */
 .bottom-nav {
   height: 60px;
-  background: #282626; /* 중앙 배경색과 동일하게 변경 */
+  background: #313131; /* 단어 박스 배경색과 동일 */
   padding: 8px 0;
   display: flex;
   justify-content: space-around;
   align-items: center;
   flex-shrink: 0;
-  border-top: 1px solid #333333;
+  border-top: none; /* 테두리 제거 */
 }
+
 
 .bottom-nav-btn {
   flex: 1;
@@ -244,12 +245,15 @@ body {
   border: none;
   background: transparent;
   cursor: pointer;
+  color: #000000; /* 활성화된 버튼은 검정색 */
+  font-size: 20px;
 }
-
 
 .chapter-modal-page-buttons button:disabled {
-  color: #999999;
+  color: #cccccc; /* 비활성화된 버튼은 옅은 회색 */
+  cursor: not-allowed;
 }
+
 
 
 /******************************************************************
@@ -1239,51 +1243,15 @@ body {
 
 
 
+/* EnglishStudy 페이지네이션은 공통 nav-btn 스타일 사용 */
 .pagination-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
   padding: 16px;
-  background-color: #2a2a2a;
+  background-color: #313131;
   border-top: 1px solid #3a3a3a;
-}
-
-
-.pagination-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid #ff9500;
-  background-color: transparent;
-  color: #ff9500;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-.pagination-btn:hover:not(:disabled) {
-  background-color: #ff9500;
-  color: #000;
-}
-
-
-.pagination-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-
-.page-indicator {
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  min-width: 80px;
-  text-align: center;
 }
 
 
