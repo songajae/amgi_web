@@ -21,6 +21,12 @@ function BottomNav({ activeTab, onTabChange }) {
         복습
       </button>
       <button
+        className={`bottom-nav-btn ${activeTab === 'study' ? 'active' : ''}`}
+        onClick={() => onTabChange('study')}
+      >
+        영어공부
+      </button>
+      <button
         className={`bottom-nav-btn ${activeTab === 'about' ? 'active' : ''}`}
         onClick={() => onTabChange('about')}
       >

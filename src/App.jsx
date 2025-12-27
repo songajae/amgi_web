@@ -4,6 +4,7 @@ import Home from './components/Home.jsx';
 import WordList from './components/WordList.jsx';
 import Review from './components/Review.jsx';
 import About from './components/About.jsx';
+import EnglishStudy from './components/EnglishStudy.jsx';  // 추가
 import BottomNav from './components/BottomNav.jsx';
 import words from './data/words.json';
 
@@ -14,12 +15,6 @@ function App() {
   const maxChapter = useMemo(
     () => Math.max(...words.map((w) => w.chapter || 1)),
     []
-  );
-
-  // 현재 챕터의 총 단어 수
-  const totalWordsInChapter = useMemo(
-    () => words.filter((w) => (w.chapter || 1) === chapter).length,
-    [chapter]
   );
 
   // 탭별 제목 표시
@@ -74,6 +69,13 @@ function App() {
             maxChapter={maxChapter} 
           />
         )}
+        {activeTab === 'study' && (
+          <EnglishStudy 
+            chapter={chapter} 
+            setChapter={setChapter} 
+            maxChapter={maxChapter} 
+          />
+        )}
         {activeTab === 'about' && <About />}
       </div>
 
@@ -84,4 +86,3 @@ function App() {
 }
 
 export default App;
-  

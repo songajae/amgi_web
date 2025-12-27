@@ -89,18 +89,18 @@ body {
 }
 
 
-/* ===== 하단 네비게이션 (BottomNav.jsx) - 수정됨 ===== */
+/* ===== 하단 네비게이션 (BottomNav.jsx) ===== */
 .bottom-nav {
   height: 60px;
   background: #ffffff;  /* 흰색 배경 */
   padding: 8px 0;
   display: flex;
-  justify-content: space-around;  /* space-between → space-around */
+  justify-content: space-around;
   align-items: center;
   flex-shrink: 0;
-  border-top: 1px solid #e0e0e0;  /* 상단 경계선 추가 */
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);  /* 그림자 추가로 구분 */
 }
-
 
 .bottom-nav-btn {
   flex: 1;
@@ -113,7 +113,6 @@ body {
   padding: 8px;
   transition: color 0.2s;
 }
-
 
 .bottom-nav-btn.active {
   color: #fe623f;  /* 선택된 메뉴는 주황색 */
