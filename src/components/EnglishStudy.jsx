@@ -36,8 +36,11 @@ function EnglishStudy({ chapter, setChapter }) {
   const startIndex = (currentPage - 1) * SUBTITLES_PER_PAGE;
   const pageSubtitles = subtitles.slice(startIndex, startIndex + SUBTITLES_PER_PAGE);
 
-  // 챕터 리스트 계산
-  const chapterList = Array.from({ length: 30 }, (_, i) => i + 1);
+  // 챕터 리스트 계산 (실제 존재하는 챕터만)
+  const chapterList = useMemo(() => {
+    return videoData.map(v => v.chapter).sort((a, b) => a - b);
+  }, []);
+  
   const chapterTotalPages = Math.max(1, Math.ceil(chapterList.length / CHAPTERS_PER_PAGE));
   const startChapterIndex = (chapterPage - 1) * CHAPTERS_PER_PAGE;
   const chapterPageItems = chapterList.slice(startChapterIndex, startChapterIndex + CHAPTERS_PER_PAGE);
@@ -144,8 +147,8 @@ function EnglishStudy({ chapter, setChapter }) {
           top: Math.max(0, scrollPosition),
           behavior: 'smooth'
         });
-      } else {
-        // active 자막이 없으면 맨 위로 스크롤
+      } else if (currentTime === 0) {
+        // 영상이 처음이면 맨 위로 스크롤
         container.scrollTo({
           top: 0,
           behavior: 'auto'
