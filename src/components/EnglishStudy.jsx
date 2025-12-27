@@ -17,10 +17,25 @@ function EnglishStudy({ chapter, setChapter }) {
   // 필요하면 여기만 -2, -3 등으로 조정해서 시작 타이밍 미세 보정
   const SUBTITLE_OFFSET = 0;
 
+  // 🔹 EnglishStudy에서 사용할 수 있는 최대 챕터 계산
+  const maxStudyChapter = useMemo(() => {
+    const chapters = videoData
+      .map((v) => v.chapter)
+      .filter((c) => typeof c === 'number');
+    if (chapters.length === 0) return 1;
+    return Math.max(...chapters);
+  }, []);
+
+  // 🔹 실제 EnglishStudy에서 사용할 챕터 (words.json에서 5를 선택해도 여기선 최대값까지만)
+  const clampedChapter = useMemo(
+    () => Math.min(chapter, maxStudyChapter),
+    [chapter, maxStudyChapter]
+  );
+
   // 현재 챕터의 영상 데이터
   const currentVideo = useMemo(
-    () => videoData.find((v) => v.chapter === chapter) || videoData[0],
-    [chapter]
+    () => videoData.find((v) => v.chapter === clampedChapter) || videoData[0],
+    [clampedChapter]
   );
 
   // 현재 챕터 자막 리스트 (전체)
@@ -33,11 +48,16 @@ function EnglishStudy({ chapter, setChapter }) {
     }));
   }, [currentVideo]);
 
-  // 챕터 리스트
+  // 챕터 리스트 (자막이 있는 챕터만)
   const chapterList = useMemo(
-    () => videoData.map((v) => v.chapter).sort((a, b) => a - b),
+    () =>
+      videoData
+        .map((v) => v.chapter)
+        .filter((c) => typeof c === 'number')
+        .sort((a, b) => a - b),
     []
   );
+
   const chapterTotalPages = Math.max(
     1,
     Math.ceil(chapterList.length / CHAPTERS_PER_PAGE)
@@ -48,7 +68,7 @@ function EnglishStudy({ chapter, setChapter }) {
     startChapterIndex + CHAPTERS_PER_PAGE
   );
 
-  // 챕터 변경 시 초기화
+  // 챕터 변경 시 초기화 (clampedChapter 기준으로 동작)
   useEffect(() => {
     setCurrentTime(0);
     setIsPlaying(false);
@@ -59,7 +79,7 @@ function EnglishStudy({ chapter, setChapter }) {
         behavior: 'auto',
       });
     }
-  }, [chapter]);
+  }, [clampedChapter]);
 
   // YouTube Player 초기화
   useEffect(() => {
@@ -208,16 +228,17 @@ function EnglishStudy({ chapter, setChapter }) {
     return `${m}:${String(s).padStart(2, '0')}`;
   };
 
-  // 챕터 변경
+  // 🔹 챕터 변경 (최대 챕터까지)
   const handleChangeChapter = (newChapter) => {
-    setChapter(newChapter);
+    const safeChapter = Math.min(newChapter, maxStudyChapter);
+    setChapter(safeChapter);     // 상위 상태는 그대로 유지
     setShowChapterModal(false);
   };
 
   // 챕터 모달 열기
   const openChapterModal = () => {
     const currentPageNum =
-      Math.floor((chapter - 1) / CHAPTERS_PER_PAGE) + 1;
+      Math.floor((clampedChapter - 1) / CHAPTERS_PER_PAGE) + 1;
     setChapterPage(currentPageNum);
     setShowChapterModal(true);
   };
@@ -228,8 +249,9 @@ function EnglishStudy({ chapter, setChapter }) {
 
   return (
     <>
+      {/* 🔹 1. 상단 주황 박스: video-subtitles.json에 있는 챕터까지만 표기 */}
       <button className="study-level-btn" onClick={openChapterModal}>
-        Level {chapter}
+        Level {clampedChapter}
         <span className="level-arrow">▼</span>
       </button>
 
@@ -308,7 +330,7 @@ function EnglishStudy({ chapter, setChapter }) {
                   <button
                     key={ch}
                     className={
-                      ch === chapter
+                      ch === clampedChapter
                         ? 'chapter-modal-item active'
                         : 'chapter-modal-item'
                     }
