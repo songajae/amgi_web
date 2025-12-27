@@ -1,85 +1,82 @@
 // src/App.jsx
-import { useState } from 'react';
-import Home from './components/Home';
-import WordList from './components/WordList';
-import Review from './components/Review';
-import EnglishStudy from './components/EnglishStudy';
-import About from './components/About';
-import BottomNav from './components/BottomNav';
-import './App.css';
+import { useMemo, useState } from 'react';
+import Home from './components/Home.jsx';
+import WordList from './components/WordList.jsx';
+import Review from './components/Review.jsx';
+import About from './components/About.jsx';
+import BottomNav from './components/BottomNav.jsx';
+import words from './data/words.json';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('home');
   const [chapter, setChapter] = useState(1);
-  const [showChapterModal, setShowChapterModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
 
-  const renderContent = () => {
+  const maxChapter = useMemo(
+    () => Math.max(...words.map((w) => w.chapter || 1)),
+    []
+  );
+
+  // 현재 챕터의 총 단어 수
+  const totalWordsInChapter = useMemo(
+    () => words.filter((w) => (w.chapter || 1) === chapter).length,
+    [chapter]
+  );
+
+  // 탭별 제목 표시
+  const getPageTitle = () => {
     switch (activeTab) {
       case 'home':
-        return <Home />;
+        return '홈';
       case 'wordlist':
-        return <WordList chapter={chapter} setChapter={setChapter} />;
+        return '단어장';
       case 'review':
-        return <Review chapter={chapter} setChapter={setChapter} />;
+        return '복습';
       case 'study':
-        return <EnglishStudy chapter={chapter} />;
+        return '영어공부';
       case 'about':
-        return <About />;
+        return '정보';
       default:
-        return <Home />;
+        return '';
     }
-  };
-
-  const handleChapterSelect = (newChapter) => {
-    setChapter(newChapter);
-    setShowChapterModal(false);
   };
 
   return (
     <div className="app-root">
-      {/* 상단 헤더 - Study 탭일 때 Level 선택 표시 */}
-      {activeTab === 'study' && (
-        <div className="top-header">
-          <span className="top-title">영어 공부</span>
-          <div className="top-header-right">
-            <button 
-              className="level-selector"
-              onClick={() => setShowChapterModal(true)}
-            >
-              Level {chapter}
-            </button>
-          </div>
+      {/* 상단 헤더 - 모든 탭에 표시 */}
+      <div className="top-header">
+        <span className="top-title">{getPageTitle()}</span>
+        <div className="top-header-right">
+          <span className="page-main">챕터 :{chapter}</span>
+          <span className="page-sub">/ {maxChapter}</span>
         </div>
-      )}
-      
-      {/* 메인 콘텐츠 */}
-      <div className={`main-content ${activeTab === 'study' ? 'with-header' : ''}`}>
-        {renderContent()}
       </div>
-      
-      {/* 챕터 선택 모달 */}
-      {showChapterModal && (
-        <div className="modal-overlay" onClick={() => setShowChapterModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3 className="modal-title">레벨 선택</h3>
-            <div className="chapter-grid">
-              {[1, 2].map(ch => (
-                <button
-                  key={ch}
-                  className={`chapter-btn ${chapter === ch ? 'active' : ''}`}
-                  onClick={() => handleChapterSelect(ch)}
-                >
-                  Level {ch}
-                </button>
-              ))}
-            </div>
-            <button className="modal-close-btn" onClick={() => setShowChapterModal(false)}>
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
-      
+
+      {/* 메인 콘텐츠 */}
+      <div className="main-content">
+        {activeTab === 'home' && (
+          <Home 
+            chapter={chapter} 
+            setChapter={setChapter} 
+            maxChapter={maxChapter} 
+          />
+        )}
+        {activeTab === 'wordlist' && (
+          <WordList 
+            chapter={chapter} 
+            setChapter={setChapter} 
+            maxChapter={maxChapter} 
+          />
+        )}
+        {activeTab === 'review' && (
+          <Review 
+            chapter={chapter} 
+            setChapter={setChapter} 
+            maxChapter={maxChapter} 
+          />
+        )}
+        {activeTab === 'about' && <About />}
+      </div>
+
       {/* 하단 네비게이션 */}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
@@ -87,3 +84,4 @@ function App() {
 }
 
 export default App;
+  
