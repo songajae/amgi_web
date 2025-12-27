@@ -2,10 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import videoData from '../data/video-subtitles.json';
 
-function EnglishStudy({ chapter, setChapter, maxChapter }) {
-  // EnglishStudy 전용 로컬 챕터
-  const [localChapter, setLocalChapter] = useState(chapter);
-
+function EnglishStudy({ chapter, setChapter }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showChapterModal, setShowChapterModal] = useState(false);
@@ -17,31 +14,13 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
   const activeSubtitleRef = useRef(null);
 
   const CHAPTERS_PER_PAGE = 20;
-  const SUBTITLE_OFFSET = 0; // 자막 시간 보정용
+  // 필요하면 여기만 -2, -3 등으로 조정해서 시작 타이밍 미세 보정
+  const SUBTITLE_OFFSET = 0;
 
-  // EnglishStudy에 들어올 때, 전역 chapter가 videoData 최대보다 크면 local만 max로 맞추기
-  useEffect(() => {
-    if (!maxChapter) return;
-
-    // video-subtitles.json이 가진 실제 최대 chapter
-    const videoMaxChapter = videoData.reduce(
-      (max, v) => Math.max(max, v.chapter),
-      1
-    );
-
-    const limit = Math.min(maxChapter, videoMaxChapter);
-
-    if (chapter > limit) {
-      setLocalChapter(limit);
-    } else {
-      setLocalChapter(chapter);
-    }
-  }, [chapter, maxChapter]);
-
-  // 현재 챕터의 영상 데이터 (localChapter 기준)
+  // 현재 챕터의 영상 데이터
   const currentVideo = useMemo(
-    () => videoData.find((v) => v.chapter === localChapter) || videoData[0],
-    [localChapter]
+    () => videoData.find((v) => v.chapter === chapter) || videoData[0],
+    [chapter]
   );
 
   // 현재 챕터 자막 리스트 (전체)
@@ -54,7 +33,7 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
     }));
   }, [currentVideo]);
 
-  // video-subtitles.json 기준 챕터 리스트
+  // 챕터 리스트
   const chapterList = useMemo(
     () => videoData.map((v) => v.chapter).sort((a, b) => a - b),
     []
@@ -69,7 +48,7 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
     startChapterIndex + CHAPTERS_PER_PAGE
   );
 
-  // localChapter 변경 시 초기화
+  // 챕터 변경 시 초기화
   useEffect(() => {
     setCurrentTime(0);
     setIsPlaying(false);
@@ -80,7 +59,7 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
         behavior: 'auto',
       });
     }
-  }, [localChapter]);
+  }, [chapter]);
 
   // YouTube Player 초기화
   useEffect(() => {
@@ -198,7 +177,7 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    // 현재 사용 중인 위치 계산
+    // 자막 시작 위치 정하는 곳 (지금은 1.4배 아래 쪽에 위치)
     const targetOffset = containerHeight * 1.4;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
@@ -229,17 +208,16 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
     return `${m}:${String(s).padStart(2, '0')}`;
   };
 
-  // EnglishStudy에서 챕터 변경 시: local + 전역 chapter 둘 다 반영
+  // 챕터 변경
   const handleChangeChapter = (newChapter) => {
-    setLocalChapter(newChapter);  // EnglishStudy용
-    setChapter(newChapter);      // App 전역 상태
+    setChapter(newChapter);
     setShowChapterModal(false);
   };
 
   // 챕터 모달 열기
   const openChapterModal = () => {
     const currentPageNum =
-      Math.floor((localChapter - 1) / CHAPTERS_PER_PAGE) + 1;
+      Math.floor((chapter - 1) / CHAPTERS_PER_PAGE) + 1;
     setChapterPage(currentPageNum);
     setShowChapterModal(true);
   };
@@ -251,7 +229,7 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
   return (
     <>
       <button className="study-level-btn" onClick={openChapterModal}>
-        Level {localChapter}
+        Level {chapter}
         <span className="level-arrow">▼</span>
       </button>
 
@@ -281,10 +259,12 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
                   className={`subtitle-item ${isActive ? 'active' : ''}`}
                   onClick={() => handleSubtitleClick(subtitle.startTime)}
                 >
-                  {/* 타임스탬프는 화면에서 숨김 */}
-                  {/* <span className="subtitle-time">
+                  {/* 타임스탬프는 화면에 안 보여도 되므로 주석 처리 */}
+                  {/*
+                  <span className="subtitle-time">
                     {formatTime(subtitle.startTime)}
-                  </span> */}
+                  </span>
+                  */}
                   <span className="subtitle-text">{subtitle.text}</span>
                 </div>
               );
@@ -328,7 +308,7 @@ function EnglishStudy({ chapter, setChapter, maxChapter }) {
                   <button
                     key={ch}
                     className={
-                      ch === localChapter
+                      ch === chapter
                         ? 'chapter-modal-item active'
                         : 'chapter-modal-item'
                     }
