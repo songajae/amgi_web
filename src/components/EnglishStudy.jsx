@@ -186,7 +186,7 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [isPlaying]);
 
-  // active 자막 기준 자동 스크롤 
+  // active 자막 기준 자동 스크롤
   useEffect(() => {
     const container = subtitleListRef.current;
     const activeEl = activeSubtitleRef.current;
@@ -197,7 +197,6 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    // 자막 시작 위치 정하는 곳 (지금은 1.4배 아래 쪽에 위치)
     const targetOffset = containerHeight * 1.4;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
@@ -249,7 +248,7 @@ function EnglishStudy({ chapter, setChapter }) {
 
   return (
     <>
-      {/* 🔹 1. 상단 주황 박스: video-subtitles.json에 있는 챕터까지만 표기 */}
+      {/* 🔹 상단 주황 박스: "챕터" 글씨 제거, 숫자만 표시 */}
       <button className="study-level-btn" onClick={openChapterModal}>
         Level {clampedChapter}
         <span className="level-arrow">▼</span>
