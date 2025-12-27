@@ -178,7 +178,7 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeHeight = activeEl.clientHeight;
 
     // 자막 시작 위치 정하는 곳
-    const targetOffset = containerHeight * 4 // (containerHeight * 9) / 10;
+    const targetOffset = containerHeight * 1.4 // (containerHeight * 9) / 10;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
 
