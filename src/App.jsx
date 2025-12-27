@@ -69,10 +69,11 @@ function App() {
         )}
 
         {activeTab === 'study' && (
+          // EnglishStudy에도 maxChapter 전달
           <EnglishStudy
             chapter={chapter}
             setChapter={setChapter}
-            maxChapter={maxChapter} {/* 🔸 EnglishStudy에도 maxChapter 전달 */}
+            maxChapter={maxChapter} 
           />
         )}
 
