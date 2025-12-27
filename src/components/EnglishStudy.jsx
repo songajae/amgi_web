@@ -16,7 +16,8 @@ function EnglishStudy({ chapter, setChapter }) {
   const pausedTimeRef = useRef(0);
 
   const SUBTITLES_PER_PAGE = 10;
-  const CHAPTERS_PER_PAGE = 20; // 2열 x 10행
+  const CHAPTERS_PER_PAGE = 20;
+  const SUBTITLE_OFFSET = 0; // 자막 오프셋 (초 단위) - 필요시 조정
 
   // 현재 챕터의 영상 데이터 가져오기
   const currentVideo = useMemo(
@@ -38,7 +39,7 @@ function EnglishStudy({ chapter, setChapter }) {
   const startIndex = (currentPage - 1) * SUBTITLES_PER_PAGE;
   const pageSubtitles = subtitles.slice(startIndex, startIndex + SUBTITLES_PER_PAGE);
 
-  // 챕터 리스트 계산 (실제 존재하는 챕터만)
+  // 챕터 리스트 계산
   const chapterList = useMemo(() => {
     return videoData.map(v => v.chapter).sort((a, b) => a - b);
   }, []);
@@ -47,14 +48,13 @@ function EnglishStudy({ chapter, setChapter }) {
   const startChapterIndex = (chapterPage - 1) * CHAPTERS_PER_PAGE;
   const chapterPageItems = chapterList.slice(startChapterIndex, startChapterIndex + CHAPTERS_PER_PAGE);
 
-  // 챕터 변경 시 페이지 초기화 및 스크롤 초기화
+  // 챕터 변경 시 초기화
   useEffect(() => {
     setCurrentPage(1);
     setCurrentTime(0);
     setIsPlaying(false);
     pausedTimeRef.current = 0;
     
-    // 자막 리스트 맨 위로 스크롤
     if (subtitleListRef.current) {
       subtitleListRef.current.scrollTo({
         top: 0,
@@ -67,7 +67,6 @@ function EnglishStudy({ chapter, setChapter }) {
   useEffect(() => {
     if (!currentVideo) return;
 
-    // YouTube API 로드
     const loadYouTubeAPI = () => {
       if (window.YT && window.YT.Player) {
         createPlayer();
@@ -101,6 +100,7 @@ function EnglishStudy({ chapter, setChapter }) {
         playerVars: {
           rel: 0,
           modestbranding: 1,
+          enablejsapi: 1,
         },
         events: {
           onReady: onPlayerReady,
@@ -119,34 +119,45 @@ function EnglishStudy({ chapter, setChapter }) {
   }, [currentVideo]);
 
   const onPlayerReady = (event) => {
-    // 플레이어 준비 완료
     setIsPlaying(false);
-  };
-
-  const onPlayerStateChange = (event) => {
-    // YouTube Player 상태: 1=재생, 2=일시정지, 0=종료
-    if (event.data === 1) {
-      // 재생 시작
-      setIsPlaying(true);
-    } else if (event.data === 2 || event.data === 0) {
-      // 일시정지 또는 종료
-      setIsPlaying(false);
+    // 초기 시간 설정
+    if (playerRef.current && playerRef.current.getCurrentTime) {
+      try {
+        const time = Math.floor(playerRef.current.getCurrentTime());
+        setCurrentTime(time);
+      } catch (e) {
+        // 에러 무시
+      }
     }
   };
 
-  // 재생 시간 추적 (YouTube Player API 기반)
+  const onPlayerStateChange = (event) => {
+    if (event.data === 1) {
+      setIsPlaying(true);
+    } else if (event.data === 2 || event.data === 0) {
+      setIsPlaying(false);
+      // 일시정지/종료 시 현재 시간 업데이트
+      if (playerRef.current && playerRef.current.getCurrentTime) {
+        try {
+          const time = Math.floor(playerRef.current.getCurrentTime());
+          setCurrentTime(time);
+          pausedTimeRef.current = time;
+        } catch (e) {
+          // 에러 무시
+        }
+      }
+    }
+  };
+
+  // 재생 시간 추적 - API 사용
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
-    if (!playerRef.current || !playerRef.current.getCurrentTime) {
-      return;
-    }
-
-    // 재생 중일 때만 시간 업데이트
-    if (isPlaying) {
+    // 플레이어가 준비되면 항상 시간 추적 (재생 여부 관계없이)
+    if (playerRef.current && playerRef.current.getCurrentTime) {
       intervalRef.current = setInterval(() => {
         if (playerRef.current && playerRef.current.getCurrentTime) {
           try {
@@ -154,10 +165,10 @@ function EnglishStudy({ chapter, setChapter }) {
             setCurrentTime(time);
             pausedTimeRef.current = time;
           } catch (error) {
-            // YouTube API 에러 무시
+            // API 에러 무시
           }
         }
-      }, 500);
+      }, 300); // 더 자주 업데이트 (0.3초마다)
     }
 
     return () => {
@@ -165,14 +176,13 @@ function EnglishStudy({ chapter, setChapter }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isPlaying, currentVideo]); // isPlaying 의존성 추가
+  }, [currentVideo, playerRef.current]); // playerRef.current 추가
 
   // active 자막 자동 스크롤
   useEffect(() => {
     if (subtitleListRef.current) {
       const container = subtitleListRef.current;
       
-      // active 자막이 있으면 스크롤
       if (activeSubtitleRef.current) {
         const activeElement = activeSubtitleRef.current;
         const containerTop = container.scrollTop;
@@ -180,13 +190,12 @@ function EnglishStudy({ chapter, setChapter }) {
         const activeTop = activeElement.offsetTop;
         const activeHeight = activeElement.clientHeight;
         
-        // active 항목이 상단에서 약간 아래(100px)에 위치하도록 스크롤
-        const targetScrollTop = activeTop - 100;
+        // active 항목이 상단 근처에 위치하도록
+        const targetScrollTop = activeTop - 80;
         
-        // 현재 보이는 영역을 벗어났을 때만 스크롤
         const isVisible = 
-          activeTop >= containerTop && 
-          activeTop + activeHeight <= containerTop + containerHeight;
+          activeTop >= containerTop + 50 && 
+          activeTop + activeHeight <= containerTop + containerHeight - 50;
         
         if (!isVisible) {
           container.scrollTo({
@@ -195,7 +204,6 @@ function EnglishStudy({ chapter, setChapter }) {
           });
         }
       } else if (currentTime === 0) {
-        // 영상이 처음이면 맨 위로 스크롤
         container.scrollTo({
           top: 0,
           behavior: 'auto'
@@ -204,20 +212,18 @@ function EnglishStudy({ chapter, setChapter }) {
     }
   }, [currentTime, currentPage]);
 
-  // 자막 클릭 → 해당 시간으로 이동
+  // 자막 클릭 핸들러
   const handleSubtitleClick = (startTime) => {
     if (playerRef.current && playerRef.current.seekTo) {
       playerRef.current.seekTo(startTime, true);
       playerRef.current.playVideo();
-      
-      // 수동 시간 업데이트
       setCurrentTime(startTime);
       pausedTimeRef.current = startTime;
       setIsPlaying(true);
     }
   };
 
-  // 시간을 mm:ss 또는 h:mm:ss 형식으로 변환
+  // 시간 포맷팅
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -251,7 +257,6 @@ function EnglishStudy({ chapter, setChapter }) {
 
   return (
     <>
-      {/* 챕터 선택 버튼 (우측 상단) */}
       <button 
         className="study-level-btn"
         onClick={openChapterModal}
@@ -261,22 +266,22 @@ function EnglishStudy({ chapter, setChapter }) {
       </button>
 
       <div className="english-study-container">
-        {/* 영상 플레이어 */}
         <div className="video-player-wrapper">
           <div id="youtube-player"></div>
         </div>
 
-        {/* 영상 정보 */}
         <div className="video-info">
           <h2 className="video-title">{currentVideo.videoTitle}</h2>
           <span className="video-time">{formatTime(currentTime)}</span>
         </div>
 
-        {/* 자막 리스트 */}
         <div className="subtitle-list-container" ref={subtitleListRef}>
           <div className="subtitle-list">
             {pageSubtitles.map((subtitle) => {
-              const isActive = Math.abs(currentTime - subtitle.startTime) <= 3;
+              // 오프셋 적용한 시간 비교
+              const adjustedSubtitleTime = subtitle.startTime + SUBTITLE_OFFSET;
+              const isActive = Math.abs(currentTime - adjustedSubtitleTime) <= 2;
+              
               return (
                 <div
                   key={subtitle.id}
@@ -292,7 +297,6 @@ function EnglishStudy({ chapter, setChapter }) {
           </div>
         </div>
 
-        {/* 페이지네이션 */}
         <div className="pagination-container">
           <button
             className="nav-btn"
@@ -314,7 +318,6 @@ function EnglishStudy({ chapter, setChapter }) {
         </div>
       </div>
 
-      {/* 챕터 선택 모달 */}
       {showChapterModal && (
         <div
           className="chapter-modal-backdrop"
@@ -333,10 +336,8 @@ function EnglishStudy({ chapter, setChapter }) {
 
               if (Math.abs(swipeDistance) > minSwipeDistance) {
                 if (swipeDistance > 0) {
-                  // 왼쪽 스와이프 -> 다음 페이지
                   setChapterPage((p) => Math.min(chapterTotalPages, p + 1));
                 } else {
-                  // 오른쪽 스와이프 -> 이전 페이지
                   setChapterPage((p) => Math.max(1, p - 1));
                 }
               }
