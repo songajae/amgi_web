@@ -1,24 +1,16 @@
 // src/App.jsx
-import { useMemo, useState } from 'react';
-import Home from './components/Home.jsx';
-import WordList from './components/WordList.jsx';
-import Review from './components/Review.jsx';
-import About from './components/About.jsx';
-import EnglishStudy from './components/EnglishStudy.jsx';
-import BottomNav from './components/BottomNav.jsx';
-import words from './data/words.json';
+// ... import 부분 동일
 
 function App() {
   const [chapter, setChapter] = useState(1);
   const [activeTab, setActiveTab] = useState('home');
 
-  // 단어 데이터 기준 전체 최대 챕터
   const maxChapter = useMemo(
     () => Math.max(...words.map((w) => w.chapter || 1)),
     []
   );
 
-  // 탭별 제목 표시
+  // 🔸 왼쪽: 현재 페이지 이름, 오른쪽: 항상 "챕터 1 / 30" 형식
   const getPageTitle = () => {
     switch (activeTab) {
       case 'home':
@@ -39,9 +31,14 @@ function App() {
   return (
     <div className="app-root">
       <header className="top-header">
-        <div className="top-title">암기송</div>
+        {/* 왼쪽: 현재 페이지 이름 */}
+        <div className="top-title">{getPageTitle()}</div>
+
+        {/* 오른쪽: 챕터 n / maxChapter */}
         <div className="top-header-right">
-          <span className="page-main">{getPageTitle()}</span>
+          <span className="page-main">
+            챕터 : {chapter} / {maxChapter}
+          </span>
         </div>
       </header>
 
