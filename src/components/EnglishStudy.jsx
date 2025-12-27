@@ -165,7 +165,7 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [isPlaying]);
 
-  // ✅ active 자막 기준 자동 스크롤 (페이지 없이 전체 스크롤)
+  // ✅ active 자막 기준 자동 스크롤 (위에서 3/4 지점에 위치)
   useEffect(() => {
     const container = subtitleListRef.current;
     const activeEl = activeSubtitleRef.current;
@@ -176,9 +176,10 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    // active 자막이 화면 중앙 근처에 오도록
+    // 자막 영역 기준, 위에서 3/4 지점에 active가 오도록
+    const targetOffset = (containerHeight * 3) / 4;
     const targetScrollTop =
-      activeTop - containerHeight / 2 + activeHeight / 2;
+      activeTop - targetOffset + activeHeight / 2;
 
     container.scrollTo({
       top: Math.max(0, targetScrollTop),
@@ -247,7 +248,6 @@ function EnglishStudy({ chapter, setChapter }) {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
-              // 🔸 active 판정은 그대로 유지
               const isActive =
                 Math.abs(currentTime - adjustedSubtitleTime) <= 3;
 
