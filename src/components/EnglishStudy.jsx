@@ -5,6 +5,7 @@ import videoData from '../data/video-subtitles.json';
 function EnglishStudy({ chapter, setChapter }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [showChapterModal, setShowChapterModal] = useState(false);
   const [chapterPage, setChapterPage] = useState(1);
   const [modalTouchStart, setModalTouchStart] = useState(0);
@@ -12,6 +13,8 @@ function EnglishStudy({ chapter, setChapter }) {
   const intervalRef = useRef(null);
   const subtitleListRef = useRef(null);
   const activeSubtitleRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const pausedTimeRef = useRef(0);
 
   const SUBTITLES_PER_PAGE = 10;
   const CHAPTERS_PER_PAGE = 20; // 2열 x 10행
@@ -49,6 +52,10 @@ function EnglishStudy({ chapter, setChapter }) {
   useEffect(() => {
     setCurrentPage(1);
     setCurrentTime(0);
+    setIsPlaying(false);
+    pausedTimeRef.current = 0;
+    startTimeRef.current = null;
+    
     // 자막 리스트 맨 위로 스크롤
     if (subtitleListRef.current) {
       subtitleListRef.current.scrollTo({
@@ -85,6 +92,7 @@ function EnglishStudy({ chapter, setChapter }) {
     const createPlayer = () => {
       if (playerRef.current && playerRef.current.loadVideoById) {
         playerRef.current.loadVideoById(currentVideo.videoId);
+        playerRef.current.seekTo(0);
         return;
       }
 
@@ -112,21 +120,48 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [currentVideo]);
 
-  const onPlayerReady = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    intervalRef.current = setInterval(() => {
-      if (playerRef.current && playerRef.current.getCurrentTime) {
-        const time = Math.floor(playerRef.current.getCurrentTime());
-        setCurrentTime(time);
-      }
-    }, 500);
+  const onPlayerReady = (event) => {
+    // 플레이어 준비 완료
   };
 
   const onPlayerStateChange = (event) => {
-    // 재생 상태 변경 처리 (필요시)
+    // YouTube Player 상태: 1=재생, 2=일시정지, 0=종료
+    if (event.data === 1) {
+      // 재생 시작
+      if (!isPlaying) {
+        setIsPlaying(true);
+        startTimeRef.current = Date.now() - (pausedTimeRef.current * 1000);
+      }
+    } else if (event.data === 2 || event.data === 0) {
+      // 일시정지 또는 종료
+      if (isPlaying) {
+        setIsPlaying(false);
+        pausedTimeRef.current = currentTime;
+      }
+    }
   };
+
+  // 재생 시간 추적 (실제 시간 기반)
+  useEffect(() => {
+    if (!isPlaying) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    intervalRef.current = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      setCurrentTime(elapsed);
+    }, 500);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPlaying]);
 
   // active 자막 자동 스크롤
   useEffect(() => {
@@ -162,6 +197,12 @@ function EnglishStudy({ chapter, setChapter }) {
     if (playerRef.current && playerRef.current.seekTo) {
       playerRef.current.seekTo(startTime, true);
       playerRef.current.playVideo();
+      
+      // 수동 시간 업데이트
+      setCurrentTime(startTime);
+      pausedTimeRef.current = startTime;
+      startTimeRef.current = Date.now() - (startTime * 1000);
+      setIsPlaying(true);
     }
   };
 
@@ -182,6 +223,9 @@ function EnglishStudy({ chapter, setChapter }) {
     setShowChapterModal(false);
     setCurrentPage(1);
     setCurrentTime(0);
+    setIsPlaying(false);
+    pausedTimeRef.current = 0;
+    startTimeRef.current = null;
   };
 
   // 챕터 모달 열기
