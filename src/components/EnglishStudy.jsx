@@ -17,7 +17,7 @@ function EnglishStudy({ chapter, setChapter }) {
 
   const SUBTITLES_PER_PAGE = 10;
   const CHAPTERS_PER_PAGE = 20;
-  const SUBTITLE_OFFSET = 0; // 자막 오프셋 (초 단위) - 필요시 조정
+  const SUBTITLE_OFFSET = 4; // 자막 오프셋 (초 단위) - 필요시 조정
 
   // 현재 챕터의 영상 데이터 가져오기
   const currentVideo = useMemo(
