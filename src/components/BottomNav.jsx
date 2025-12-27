@@ -24,7 +24,7 @@ function BottomNav({ activeTab, onTabChange }) {
         className={`bottom-nav-btn ${activeTab === 'study' ? 'active' : ''}`}
         onClick={() => onTabChange('study')}
       >
-        영어공부
+        암기송
       </button>
       <button
         className={`bottom-nav-btn ${activeTab === 'about' ? 'active' : ''}`}

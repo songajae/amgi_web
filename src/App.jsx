@@ -4,7 +4,7 @@ import Home from './components/Home.jsx';
 import WordList from './components/WordList.jsx';
 import Review from './components/Review.jsx';
 import About from './components/About.jsx';
-import EnglishStudy from './components/EnglishStudy.jsx';  // 추가
+import EnglishStudy from './components/EnglishStudy.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import words from './data/words.json';
 
@@ -27,7 +27,7 @@ function App() {
       case 'review':
         return '복습';
       case 'study':
-        return '영어공부';
+        return '암기송';  // 변경
       case 'about':
         return '정보';
       default:
