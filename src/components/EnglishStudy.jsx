@@ -283,9 +283,9 @@ function EnglishStudy({ chapter, setChapter }) {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
+              // 0초라도 근처면 바로 잡히게, 범위는 3초로 완화
               const isActive =
-                currentTime > 0 &&
-                Math.abs(currentTime - adjustedSubtitleTime) <= 2;
+                Math.abs(currentTime - adjustedSubtitleTime) <= 3;
 
               return (
                 <div
