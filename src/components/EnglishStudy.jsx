@@ -186,35 +186,29 @@ function EnglishStudy({ chapter, setChapter }) {
 
   // active 자막 자동 스크롤
   useEffect(() => {
-    const container = subtitleListRef.current;
-    const activeEl = activeSubtitleRef.current;
+  const container = subtitleListRef.current;
+  const activeEl = activeSubtitleRef.current;
 
-    if (!container) return;
+  if (!container || !activeEl) return;
 
-    // 0초이면 무조건 맨 위
-    if (currentTime === 0 || !activeEl) {
-      container.scrollTo({ top: 0, behavior: 'auto' });
-      return;
-    }
+  const containerTop = container.scrollTop;
+  const containerHeight = container.clientHeight;
+  const activeTop = activeEl.offsetTop;
+  const activeHeight = activeEl.clientHeight;
 
-    const containerTop = container.scrollTop;
-    const containerHeight = container.clientHeight;
-    const activeTop = activeEl.offsetTop;
-    const activeHeight = activeEl.clientHeight;
+  const targetScrollTop = activeTop - 80;
 
-    const targetScrollTop = activeTop - 80;
+  const isVisible =
+    activeTop >= containerTop + 50 &&
+    activeTop + activeHeight <= containerTop + containerHeight - 50;
 
-    const isVisible =
-      activeTop >= containerTop + 50 &&
-      activeTop + activeHeight <= containerTop + containerHeight - 50;
-
-    if (!isVisible) {
-      container.scrollTo({
-        top: Math.max(0, targetScrollTop),
-        behavior: 'smooth',
-      });
-    }
-  }, [currentTime, currentPage]);
+  if (!isVisible) {
+    container.scrollTo({
+      top: Math.max(0, targetScrollTop),
+      behavior: 'smooth',
+    });
+  }
+}, [currentTime, currentPage]);
 
   // 자막 클릭 핸들러
   const handleSubtitleClick = (startTime) => {
