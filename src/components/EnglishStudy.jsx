@@ -17,15 +17,15 @@ function EnglishStudy({ chapter, setChapter }) {
 
   const SUBTITLES_PER_PAGE = 10;
   const CHAPTERS_PER_PAGE = 20;
-  const SUBTITLE_OFFSET = 0; // 자막 오프셋 (초 단위) - 필요시 조정
+  const SUBTITLE_OFFSET = 0; // 필요하면 ± 값으로 조정
 
-  // 현재 챕터의 영상 데이터 가져오기
+  // 현재 챕터의 영상 데이터
   const currentVideo = useMemo(
     () => videoData.find((v) => v.chapter === chapter) || videoData[0],
     [chapter]
   );
 
-  // 현재 챕터의 자막 리스트
+  // 현재 챕터 자막 리스트
   const subtitles = useMemo(() => {
     if (!currentVideo) return [];
     return currentVideo.subtitles.map(([id, time, text]) => ({
@@ -42,11 +42,11 @@ function EnglishStudy({ chapter, setChapter }) {
     startIndex + SUBTITLES_PER_PAGE
   );
 
-  // 챕터 리스트 계산
-  const chapterList = useMemo(() => {
-    return videoData.map((v) => v.chapter).sort((a, b) => a - b);
-  }, []);
-
+  // 챕터 리스트
+  const chapterList = useMemo(
+    () => videoData.map((v) => v.chapter).sort((a, b) => a - b),
+    []
+  );
   const chapterTotalPages = Math.max(
     1,
     Math.ceil(chapterList.length / CHAPTERS_PER_PAGE)
@@ -156,7 +156,7 @@ function EnglishStudy({ chapter, setChapter }) {
     }
   };
 
-  // 재생 시간 추적 - API 사용
+  // 재생 시간 추적
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -165,14 +165,12 @@ function EnglishStudy({ chapter, setChapter }) {
 
     if (playerRef.current && playerRef.current.getCurrentTime) {
       intervalRef.current = setInterval(() => {
-        if (playerRef.current && playerRef.current.getCurrentTime) {
-          try {
-            const time = Math.floor(playerRef.current.getCurrentTime());
-            setCurrentTime(time);
-            pausedTimeRef.current = time;
-          } catch (error) {
-            // ignore
-          }
+        try {
+          const time = Math.floor(playerRef.current.getCurrentTime());
+          setCurrentTime(time);
+          pausedTimeRef.current = time;
+        } catch (error) {
+          // ignore
         }
       }, 300);
     }
@@ -186,31 +184,31 @@ function EnglishStudy({ chapter, setChapter }) {
 
   // active 자막 자동 스크롤
   useEffect(() => {
-  const container = subtitleListRef.current;
-  const activeEl = activeSubtitleRef.current;
+    const container = subtitleListRef.current;
+    const activeEl = activeSubtitleRef.current;
 
-  if (!container || !activeEl) return;
+    if (!container || !activeEl) return;
 
-  const containerTop = container.scrollTop;
-  const containerHeight = container.clientHeight;
-  const activeTop = activeEl.offsetTop;
-  const activeHeight = activeEl.clientHeight;
+    const containerTop = container.scrollTop;
+    const containerHeight = container.clientHeight;
+    const activeTop = activeEl.offsetTop;
+    const activeHeight = activeEl.clientHeight;
 
-  const targetScrollTop = activeTop - 80;
+    const targetScrollTop = activeTop - 80;
 
-  const isVisible =
-    activeTop >= containerTop + 50 &&
-    activeTop + activeHeight <= containerTop + containerHeight - 50;
+    const isVisible =
+      activeTop >= containerTop + 50 &&
+      activeTop + activeHeight <= containerTop + containerHeight - 50;
 
-  if (!isVisible) {
-    container.scrollTo({
-      top: Math.max(0, targetScrollTop),
-      behavior: 'smooth',
-    });
-  }
-}, [currentTime, currentPage]);
+    if (!isVisible) {
+      container.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth',
+      });
+    }
+  }, [currentTime, currentPage]);
 
-  // 자막 클릭 핸들러
+  // 자막 클릭 → 해당 시간으로 이동
   const handleSubtitleClick = (startTime) => {
     if (playerRef.current && playerRef.current.seekTo) {
       playerRef.current.seekTo(startTime, true);
@@ -232,7 +230,7 @@ function EnglishStudy({ chapter, setChapter }) {
     return `${m}:${String(s).padStart(2, '0')}`;
   };
 
-  // 챕터 변경 핸들러
+  // 챕터 변경
   const handleChangeChapter = (newChapter) => {
     setChapter(newChapter);
     setShowChapterModal(false);
@@ -277,7 +275,7 @@ function EnglishStudy({ chapter, setChapter }) {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
-              // 0초라도 근처면 바로 잡히게, 범위는 3초로 완화
+              // 재생 중에도 넉넉하게 잡히도록 범위를 완화
               const isActive =
                 Math.abs(currentTime - adjustedSubtitleTime) <= 3;
 
