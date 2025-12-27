@@ -13,7 +13,6 @@ function EnglishStudy({ chapter, setChapter }) {
   const intervalRef = useRef(null);
   const subtitleListRef = useRef(null);
   const activeSubtitleRef = useRef(null);
-  const pausedTimeRef = useRef(0);
 
   const SUBTITLES_PER_PAGE = 10;
   const CHAPTERS_PER_PAGE = 20;
@@ -62,7 +61,6 @@ function EnglishStudy({ chapter, setChapter }) {
     setCurrentPage(1);
     setCurrentTime(0);
     setIsPlaying(false);
-    pausedTimeRef.current = 0;
 
     if (subtitleListRef.current) {
       subtitleListRef.current.scrollTo({
@@ -129,26 +127,22 @@ function EnglishStudy({ chapter, setChapter }) {
 
   const onPlayerReady = () => {
     setIsPlaying(false);
-    if (playerRef.current && playerRef.current.getCurrentTime) {
-      try {
-        const time = Math.floor(playerRef.current.getCurrentTime());
-        setCurrentTime(time);
-      } catch (e) {
-        // ignore
-      }
-    }
+    // 준비 직후에는 굳이 시간 안 읽어도 됨 (0초로 유지)
   };
 
   const onPlayerStateChange = (event) => {
-    if (event.data === 1) {
+    // 1: 재생, 2: 일시정지, 0: 종료
+    if (event.data === window.YT.PlayerState.PLAYING) {
       setIsPlaying(true);
-    } else if (event.data === 2 || event.data === 0) {
+    } else if (
+      event.data === window.YT.PlayerState.PAUSED ||
+      event.data === window.YT.PlayerState.ENDED
+    ) {
       setIsPlaying(false);
       if (playerRef.current && playerRef.current.getCurrentTime) {
         try {
           const time = Math.floor(playerRef.current.getCurrentTime());
           setCurrentTime(time);
-          pausedTimeRef.current = time;
         } catch (e) {
           // ignore
         }
@@ -156,11 +150,15 @@ function EnglishStudy({ chapter, setChapter }) {
     }
   };
 
-  // 재생 시간 추적
+  // 재생 중일 때만 시간 추적
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
+    }
+
+    if (!isPlaying) {
+      return;
     }
 
     if (playerRef.current && playerRef.current.getCurrentTime) {
@@ -168,7 +166,6 @@ function EnglishStudy({ chapter, setChapter }) {
         try {
           const time = Math.floor(playerRef.current.getCurrentTime());
           setCurrentTime(time);
-          pausedTimeRef.current = time;
         } catch (error) {
           // ignore
         }
@@ -180,14 +177,13 @@ function EnglishStudy({ chapter, setChapter }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [currentVideo]);
+  }, [isPlaying]);
 
-  // ✅ active 자막 기준 자동 스크롤 (스크롤만 담당)
+  // active 자막 기준 자동 스크롤
   useEffect(() => {
     const container = subtitleListRef.current;
     const activeEl = activeSubtitleRef.current;
 
-    // 컨테이너나 active 자막이 없으면 스크롤하지 않음
     if (!container || !activeEl) return;
 
     const containerTop = container.scrollTop;
@@ -195,14 +191,12 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    // active 자막을 살짝 위쪽(80px 아래) 위치로 맞춤
     const targetScrollTop = activeTop - 80;
 
     const isVisible =
       activeTop >= containerTop + 40 &&
       activeTop + activeHeight <= containerTop + containerHeight - 40;
 
-    // 이미 화면 안에 있으면 스크롤 안 함
     if (isVisible) return;
 
     container.scrollTo({
@@ -216,8 +210,6 @@ function EnglishStudy({ chapter, setChapter }) {
     if (playerRef.current && playerRef.current.seekTo) {
       playerRef.current.seekTo(startTime, true);
       playerRef.current.playVideo();
-      setCurrentTime(startTime);
-      pausedTimeRef.current = startTime;
       setIsPlaying(true);
     }
   };
@@ -240,7 +232,6 @@ function EnglishStudy({ chapter, setChapter }) {
     setCurrentPage(1);
     setCurrentTime(0);
     setIsPlaying(false);
-    pausedTimeRef.current = 0;
   };
 
   // 챕터 모달 열기
@@ -278,7 +269,6 @@ function EnglishStudy({ chapter, setChapter }) {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
-              // ✅ active(주황색) 판정은 지금처럼 유지
               const isActive =
                 Math.abs(currentTime - adjustedSubtitleTime) <= 3;
 
