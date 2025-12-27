@@ -14,7 +14,8 @@ function EnglishStudy({ chapter, setChapter }) {
   const activeSubtitleRef = useRef(null);
 
   const CHAPTERS_PER_PAGE = 20;
-  const SUBTITLE_OFFSET = 0; // 자막 시간 보정용
+  // 필요하면 여기만 -2, -3 등으로 조정해서 시작 타이밍 미세 보정
+  const SUBTITLE_OFFSET = 0;
 
   // 현재 챕터의 영상 데이터
   const currentVideo = useMemo(
@@ -165,7 +166,7 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [isPlaying]);
 
-  // ✅ active 자막 기준 자동 스크롤 (위에서 3/4 지점에 위치)
+  // active 자막 기준 자동 스크롤 (위에서 9/10 지점에 위치)
   useEffect(() => {
     const container = subtitleListRef.current;
     const activeEl = activeSubtitleRef.current;
@@ -176,8 +177,7 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    // 자막 영역 기준, 위에서 3/4 지점에 active가 오도록
-    const targetOffset = containerHeight //(containerHeight * 15) / 16;
+    const targetOffset = (containerHeight * 9) / 10;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
 
@@ -248,6 +248,7 @@ function EnglishStudy({ chapter, setChapter }) {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
+              // ★ 영상이 시작되자마자(0초 포함) 바로 active 가능
               const isActive =
                 Math.abs(currentTime - adjustedSubtitleTime) <= 3;
 
