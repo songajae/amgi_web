@@ -127,11 +127,9 @@ function EnglishStudy({ chapter, setChapter }) {
 
   const onPlayerReady = () => {
     setIsPlaying(false);
-    // 준비 직후에는 굳이 시간 안 읽어도 됨 (0초로 유지)
   };
 
   const onPlayerStateChange = (event) => {
-    // 1: 재생, 2: 일시정지, 0: 종료
     if (event.data === window.YT.PlayerState.PLAYING) {
       setIsPlaying(true);
     } else if (
@@ -179,25 +177,14 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [isPlaying]);
 
-  // active 자막 기준 자동 스크롤
+  // ✅ active 자막 기준 자동 스크롤 (단순 버전)
   useEffect(() => {
     const container = subtitleListRef.current;
     const activeEl = activeSubtitleRef.current;
 
     if (!container || !activeEl) return;
 
-    const containerTop = container.scrollTop;
-    const containerHeight = container.clientHeight;
-    const activeTop = activeEl.offsetTop;
-    const activeHeight = activeEl.clientHeight;
-
-    const targetScrollTop = activeTop - 80;
-
-    const isVisible =
-      activeTop >= containerTop + 40 &&
-      activeTop + activeHeight <= containerTop + containerHeight - 40;
-
-    if (isVisible) return;
+    const targetScrollTop = activeEl.offsetTop - 80;
 
     container.scrollTo({
       top: Math.max(0, targetScrollTop),
@@ -269,6 +256,7 @@ function EnglishStudy({ chapter, setChapter }) {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
+              // 🔸 active 판정은 그대로 유지
               const isActive =
                 Math.abs(currentTime - adjustedSubtitleTime) <= 3;
 
