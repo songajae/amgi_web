@@ -376,23 +376,20 @@ function Home({ chapter, setChapter, maxChapter }) {
             </div>
 
             <div className="chapter-modal-page-buttons">
-              <button
-                onClick={() =>
-                  setChapterPage((p) => (p <= 1 ? chapterTotalPages : p - 1))
-                }
-              >
-                ◀
-              </button>
-              <button
-                onClick={() =>
-                  setChapterPage((p) =>
-                    p >= chapterTotalPages ? 1 : p + 1
-                  )
-                }
-              >
-                ▶
-              </button>
-            </div>
+            <button
+              onClick={() => setChapterPage((p) => Math.max(1, p - 1))}
+              disabled={chapterPage === 1}
+            >
+              ◀
+            </button>
+            <button
+              onClick={() => setChapterPage((p) => Math.min(chapterTotalPages, p + 1))}
+              disabled={chapterPage >= chapterTotalPages}
+            >
+              ▶
+            </button>
+          </div>
+
           </div>
         </div>
       )}

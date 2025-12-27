@@ -1249,10 +1249,11 @@ body {
   justify-content: center;
   align-items: center;
   gap: 20px;
-  padding: 16px;
+  padding: 3px 16px; /* 상하 여백 3px로 축소 */
   background-color: #313131;
   border-top: 1px solid #3a3a3a;
 }
+
 
 
 .main-content.with-header {
