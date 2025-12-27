@@ -3,7 +3,6 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import videoData from '../data/video-subtitles.json';
 
 function EnglishStudy({ chapter, setChapter }) {
-  const [currentPage, setCurrentPage] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showChapterModal, setShowChapterModal] = useState(false);
@@ -14,9 +13,8 @@ function EnglishStudy({ chapter, setChapter }) {
   const subtitleListRef = useRef(null);
   const activeSubtitleRef = useRef(null);
 
-  const SUBTITLES_PER_PAGE = 10;
   const CHAPTERS_PER_PAGE = 20;
-  const SUBTITLE_OFFSET = 0; // 자막 시간 보정용 (스크롤과 무관)
+  const SUBTITLE_OFFSET = 0; // 자막 시간 보정용
 
   // 현재 챕터의 영상 데이터
   const currentVideo = useMemo(
@@ -24,7 +22,7 @@ function EnglishStudy({ chapter, setChapter }) {
     [chapter]
   );
 
-  // 현재 챕터 자막 리스트
+  // 현재 챕터 자막 리스트 (전체)
   const subtitles = useMemo(() => {
     if (!currentVideo) return [];
     return currentVideo.subtitles.map(([id, time, text]) => ({
@@ -33,13 +31,6 @@ function EnglishStudy({ chapter, setChapter }) {
       text,
     }));
   }, [currentVideo]);
-
-  const totalPages = Math.ceil(subtitles.length / SUBTITLES_PER_PAGE);
-  const startIndex = (currentPage - 1) * SUBTITLES_PER_PAGE;
-  const pageSubtitles = subtitles.slice(
-    startIndex,
-    startIndex + SUBTITLES_PER_PAGE
-  );
 
   // 챕터 리스트
   const chapterList = useMemo(
@@ -58,7 +49,6 @@ function EnglishStudy({ chapter, setChapter }) {
 
   // 챕터 변경 시 초기화
   useEffect(() => {
-    setCurrentPage(1);
     setCurrentTime(0);
     setIsPlaying(false);
 
@@ -155,9 +145,7 @@ function EnglishStudy({ chapter, setChapter }) {
       intervalRef.current = null;
     }
 
-    if (!isPlaying) {
-      return;
-    }
+    if (!isPlaying) return;
 
     if (playerRef.current && playerRef.current.getCurrentTime) {
       intervalRef.current = setInterval(() => {
@@ -177,20 +165,26 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [isPlaying]);
 
-  // ✅ active 자막 기준 자동 스크롤 (단순 버전)
+  // ✅ active 자막 기준 자동 스크롤 (페이지 없이 전체 스크롤)
   useEffect(() => {
     const container = subtitleListRef.current;
     const activeEl = activeSubtitleRef.current;
 
     if (!container || !activeEl) return;
 
-    const targetScrollTop = activeEl.offsetTop - 80;
+    const containerHeight = container.clientHeight;
+    const activeTop = activeEl.offsetTop;
+    const activeHeight = activeEl.clientHeight;
+
+    // active 자막이 화면 중앙 근처에 오도록
+    const targetScrollTop =
+      activeTop - containerHeight / 2 + activeHeight / 2;
 
     container.scrollTo({
       top: Math.max(0, targetScrollTop),
       behavior: 'smooth',
     });
-  }, [currentTime, currentPage]);
+  }, [currentTime]);
 
   // 자막 클릭 → 해당 시간으로 이동
   const handleSubtitleClick = (startTime) => {
@@ -216,9 +210,6 @@ function EnglishStudy({ chapter, setChapter }) {
   const handleChangeChapter = (newChapter) => {
     setChapter(newChapter);
     setShowChapterModal(false);
-    setCurrentPage(1);
-    setCurrentTime(0);
-    setIsPlaying(false);
   };
 
   // 챕터 모달 열기
@@ -252,7 +243,7 @@ function EnglishStudy({ chapter, setChapter }) {
 
         <div className="subtitle-list-container" ref={subtitleListRef}>
           <div className="subtitle-list">
-            {pageSubtitles.map((subtitle) => {
+            {subtitles.map((subtitle) => {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
@@ -275,26 +266,6 @@ function EnglishStudy({ chapter, setChapter }) {
               );
             })}
           </div>
-        </div>
-
-        <div className="pagination-container">
-          <button
-            className="nav-btn"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-          >
-            ◀
-          </button>
-          <span className="word-indicator">
-            {currentPage} / {totalPages}
-          </span>
-          <button
-            className="nav-btn"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-          >
-            ▶
-          </button>
         </div>
       </div>
 
