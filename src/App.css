@@ -1400,3 +1400,29 @@ body {
 .modal-close-btn:hover {
   background-color: #4a4a4a;
 }
+
+/* EnglishStudy - Level 버튼 (우측 상단) */
+.study-level-btn {
+  background: #fe623f;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  z-index: 100;
+}
+
+.study-level-btn .level-arrow {
+  font-size: 12px;
+  line-height: 1;
+}

@@ -138,15 +138,14 @@ function EnglishStudy({ chapter, setChapter }) {
 
   return (
     <>
-      {/* 챕터 선택 버튼 (상단 헤더에 표시) */}
-      <div style={{ position: 'absolute', top: '8px', left: '20px', zIndex: 100 }}>
-        <button 
-          className="level-selector"
-          onClick={() => setShowChapterModal(true)}
-        >
-          Level {chapter} ▼
-        </button>
-      </div>
+      {/* 챕터 선택 버튼 (우측 상단) */}
+      <button 
+        className="study-level-btn"
+        onClick={() => setShowChapterModal(true)}
+      >
+        Level {chapter}
+        <span className="level-arrow">▼</span>
+      </button>
 
       <div className="english-study-container">
         {/* 영상 플레이어 */}

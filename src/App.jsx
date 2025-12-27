@@ -38,13 +38,16 @@ function App() {
   return (
     <div className="app-root">
       {/* 상단 헤더 - 모든 탭에 표시 */}
-      <div className="top-header">
-        <span className="top-title">{getPageTitle()}</span>
-        <div className="top-header-right">
-          <span className="page-main">챕터 :{chapter}</span>
-          <span className="page-sub">/ {maxChapter}</span>
-        </div>
-      </div>
+<div className="top-header">
+  <span className="top-title">{getPageTitle()}</span>
+  {activeTab !== 'about' && (
+    <div className="top-header-right">
+      <span className="page-main">챕터 :{chapter}</span>
+      <span className="page-sub">/ {maxChapter}</span>
+    </div>
+  )}
+</div>
+
 
       {/* 메인 콘텐츠 */}
       <div className="main-content">

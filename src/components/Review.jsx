@@ -412,22 +412,23 @@ function Review({ chapter, setChapter, maxChapter }) {
   >
     <div className="chapter-modal" onClick={(e) => e.stopPropagation()}>
       <div className="chapter-modal-list">
-        <div className="chapter-modal-grid">
-          {chapterPageItems.map((ch) => (
-            <button
-              key={ch}
-              className={
-                ch === chapter
-                  ? 'chapter-modal-item active'
-                  : 'chapter-modal-item'
-              }
-              onClick={() => handleChangeChapter(ch)}
-            >
-              ch{ch}. Level {ch}(40)
-            </button>
-          ))}
-        </div>
-      </div>
+  <div className="chapter-modal-grid">
+    {chapterPageItems.map((ch) => (
+      <button
+        key={ch}
+        className={
+          ch === chapter
+            ? 'chapter-modal-item active'
+            : 'chapter-modal-item'
+        }
+        onClick={() => handleChangeChapter(ch)}
+      >
+        Level {ch}
+      </button>
+    ))}
+  </div>
+</div>
+
 
 
             <div className="chapter-modal-page-buttons">
