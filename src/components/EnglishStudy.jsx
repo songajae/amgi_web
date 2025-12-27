@@ -177,8 +177,8 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    // 자막 시작 위치 정하는 곳
-    const targetOffset = containerHeight * 1.4 // (containerHeight * 9) / 10;
+    // 자막 시작 위치 정하는 곳 (지금은 1.4배 아래 쪽에 위치)
+    const targetOffset = containerHeight * 1.4;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
 
@@ -249,7 +249,6 @@ function EnglishStudy({ chapter, setChapter }) {
               const adjustedSubtitleTime =
                 subtitle.startTime + SUBTITLE_OFFSET;
 
-              // ★ 영상이 시작되자마자(0초 포함) 바로 active 가능
               const isActive =
                 Math.abs(currentTime - adjustedSubtitleTime) <= 3;
 
@@ -260,9 +259,12 @@ function EnglishStudy({ chapter, setChapter }) {
                   className={`subtitle-item ${isActive ? 'active' : ''}`}
                   onClick={() => handleSubtitleClick(subtitle.startTime)}
                 >
+                  {/* 타임스탬프는 화면에 안 보여도 되므로 주석 처리 */}
+                  {/*
                   <span className="subtitle-time">
                     {formatTime(subtitle.startTime)}
                   </span>
+                  */}
                   <span className="subtitle-text">{subtitle.text}</span>
                 </div>
               );
