@@ -166,7 +166,7 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [isPlaying]);
 
-  // active 자막 기준 자동 스크롤 (위에서 9/10 지점에 위치)
+  // active 자막 기준 자동 스크롤 
   useEffect(() => {
     const container = subtitleListRef.current;
     const activeEl = activeSubtitleRef.current;
@@ -177,7 +177,8 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeTop = activeEl.offsetTop;
     const activeHeight = activeEl.clientHeight;
 
-    const targetOffset = containerHeight * 1.4 // (containerHeight * 9) / 10;
+    // 자막 시작 위치 정하는 곳
+    const targetOffset = containerHeight * 4 // (containerHeight * 9) / 10;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
 
