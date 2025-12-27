@@ -10,14 +10,14 @@ function About() {
     <div className="about-container">
       <div className="about-content">
         <div className="about-section">
-          <h2 className="about-title">단어복습 앱</h2>
+          <h1 className="about-title">{aboutData.appName}</h1>
           <p className="about-description">{aboutData.description}</p>
         </div>
 
         <div className="about-section">
           <div className="about-item">
             <span className="about-label">버전</span>
-            <span className="about-value">v{aboutData.version}</span>
+            <span className="about-value">{aboutData.version}</span>
           </div>
           <div className="about-item">
             <span className="about-label">개발자</span>
@@ -31,11 +31,7 @@ function About() {
           </div>
         </div>
 
-        <div className="about-section">
-          <p className="about-footer">
-            © 2025 {aboutData.developer.name}. All rights reserved.
-          </p>
-        </div>
+        <p className="about-footer">© 2025 {aboutData.developer.name}. All rights reserved.</p>
       </div>
     </div>
   );

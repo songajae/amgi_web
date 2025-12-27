@@ -405,31 +405,30 @@ function Review({ chapter, setChapter, maxChapter }) {
       )}
 
       {/* 챕터 선택 모달 */}
-      {showChapterModal && (
-        <div
-          className="chapter-modal-backdrop"
-          onClick={() => setShowChapterModal(false)}
-        >
-          <div className="chapter-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="chapter-modal-list">
-              {chapterPageItems.map((ch) => (
-                <button
-                  key={ch}
-                  className={
-                    ch === chapter
-                      ? 'chapter-modal-item active'
-                      : 'chapter-modal-item'
-                  }
-                  onClick={() => handleChangeChapter(ch)}
-                >
-                  ch{ch}. Level {ch}(40)
-                </button>
-              ))}
-            </div>
+{showChapterModal && (
+  <div
+    className="chapter-modal-backdrop"
+    onClick={() => setShowChapterModal(false)}
+  >
+    <div className="chapter-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="chapter-modal-list">
+        <div className="chapter-modal-grid">
+          {chapterPageItems.map((ch) => (
+            <button
+              key={ch}
+              className={
+                ch === chapter
+                  ? 'chapter-modal-item active'
+                  : 'chapter-modal-item'
+              }
+              onClick={() => handleChangeChapter(ch)}
+            >
+              ch{ch}. Level {ch}(40)
+            </button>
+          ))}
+        </div>
+      </div>
 
-            <div className="chapter-modal-footer">
-              {chapterPage} / {chapterTotalPages}
-            </div>
 
             <div className="chapter-modal-page-buttons">
               <button
