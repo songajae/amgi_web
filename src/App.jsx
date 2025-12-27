@@ -7,18 +7,25 @@ import About from './components/About.jsx';
 import EnglishStudy from './components/EnglishStudy.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import words from './data/words.json';
+import videoData from './data/video-subtitles.json';
 
 function App() {
   const [chapter, setChapter] = useState(1);
   const [activeTab, setActiveTab] = useState('home');
 
-  // 단어 데이터 기준 전체 최대 챕터
+  // 단어 기준 전체 최대 챕터
   const maxChapter = useMemo(
     () => Math.max(...words.map((w) => w.chapter || 1)),
     []
   );
 
-  // 왼쪽에 찍을 현재 페이지 이름
+  // EnglishStudy(암기송)에서 사용할 최대 챕터 (video-subtitles.json 기준)
+  const studyMaxChapter = useMemo(
+    () => videoData.reduce((max, v) => Math.max(max, v.chapter), 1),
+    []
+  );
+
+  // 탭별 제목 표시
   const getPageTitle = () => {
     switch (activeTab) {
       case 'home':
@@ -36,19 +43,25 @@ function App() {
     }
   };
 
+  // 헤더에 찍을 Level 값:
+  // - EnglishStudy 아닐 때: 사용자가 선택한 chapter 그대로
+  // - EnglishStudy 일 때: 암기송이 가진 최대 챕터(studyMaxChapter)
+  const headerLevel =
+    activeTab === 'study' ? studyMaxChapter : chapter;
+
   return (
     <div className="app-root">
-      {/* 🔸 상단바: 왼쪽에 페이지 이름, 오른쪽에 챕터 1 / 30 */}
       <header className="top-header">
-        <div className="top-title">{getPageTitle()}</div>
+        <div className="top-title">암기송</div>
         <div className="top-header-right">
-          <span className="page-main">
-            챕터 : {chapter} / {maxChapter}
+          <span className="page-main">{getPageTitle()}</span>
+          <span className="page-sub">
+            {/* 여기 텍스트는 예시, 실제 문구는 기존 UI에 맞게 조정 가능 */}
+            챕터 : {headerLevel}
           </span>
         </div>
       </header>
 
-      {/* 🔸 메인 영역: 기존과 동일 */}
       <main className="main-content with-header">
         {activeTab === 'home' && (
           <Home
@@ -83,7 +96,6 @@ function App() {
         {activeTab === 'about' && <About />}
       </main>
 
-      {/* 🔸 하단 탭: 그대로 */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
