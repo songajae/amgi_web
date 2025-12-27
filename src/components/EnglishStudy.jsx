@@ -21,7 +21,7 @@ function EnglishStudy({ chapter, setChapter }) {
 
   // 현재 챕터의 영상 데이터 가져오기
   const currentVideo = useMemo(
-    () => videoData.find(v => v.chapter === chapter) || videoData[0],
+    () => videoData.find((v) => v.chapter === chapter) || videoData[0],
     [chapter]
   );
 
@@ -31,22 +31,31 @@ function EnglishStudy({ chapter, setChapter }) {
     return currentVideo.subtitles.map(([id, time, text]) => ({
       id,
       startTime: time,
-      text
+      text,
     }));
   }, [currentVideo]);
 
   const totalPages = Math.ceil(subtitles.length / SUBTITLES_PER_PAGE);
   const startIndex = (currentPage - 1) * SUBTITLES_PER_PAGE;
-  const pageSubtitles = subtitles.slice(startIndex, startIndex + SUBTITLES_PER_PAGE);
+  const pageSubtitles = subtitles.slice(
+    startIndex,
+    startIndex + SUBTITLES_PER_PAGE
+  );
 
   // 챕터 리스트 계산
   const chapterList = useMemo(() => {
-    return videoData.map(v => v.chapter).sort((a, b) => a - b);
+    return videoData.map((v) => v.chapter).sort((a, b) => a - b);
   }, []);
-  
-  const chapterTotalPages = Math.max(1, Math.ceil(chapterList.length / CHAPTERS_PER_PAGE));
+
+  const chapterTotalPages = Math.max(
+    1,
+    Math.ceil(chapterList.length / CHAPTERS_PER_PAGE)
+  );
   const startChapterIndex = (chapterPage - 1) * CHAPTERS_PER_PAGE;
-  const chapterPageItems = chapterList.slice(startChapterIndex, startChapterIndex + CHAPTERS_PER_PAGE);
+  const chapterPageItems = chapterList.slice(
+    startChapterIndex,
+    startChapterIndex + CHAPTERS_PER_PAGE
+  );
 
   // 챕터 변경 시 초기화
   useEffect(() => {
@@ -54,11 +63,11 @@ function EnglishStudy({ chapter, setChapter }) {
     setCurrentTime(0);
     setIsPlaying(false);
     pausedTimeRef.current = 0;
-    
+
     if (subtitleListRef.current) {
       subtitleListRef.current.scrollTo({
         top: 0,
-        behavior: 'auto'
+        behavior: 'auto',
       });
     }
   }, [chapter]);
@@ -104,8 +113,8 @@ function EnglishStudy({ chapter, setChapter }) {
         },
         events: {
           onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange
-        }
+          onStateChange: onPlayerStateChange,
+        },
       });
     };
 
@@ -118,15 +127,14 @@ function EnglishStudy({ chapter, setChapter }) {
     };
   }, [currentVideo]);
 
-  const onPlayerReady = (event) => {
+  const onPlayerReady = () => {
     setIsPlaying(false);
-    // 초기 시간 설정
     if (playerRef.current && playerRef.current.getCurrentTime) {
       try {
         const time = Math.floor(playerRef.current.getCurrentTime());
         setCurrentTime(time);
       } catch (e) {
-        // 에러 무시
+        // ignore
       }
     }
   };
@@ -136,14 +144,13 @@ function EnglishStudy({ chapter, setChapter }) {
       setIsPlaying(true);
     } else if (event.data === 2 || event.data === 0) {
       setIsPlaying(false);
-      // 일시정지/종료 시 현재 시간 업데이트
       if (playerRef.current && playerRef.current.getCurrentTime) {
         try {
           const time = Math.floor(playerRef.current.getCurrentTime());
           setCurrentTime(time);
           pausedTimeRef.current = time;
         } catch (e) {
-          // 에러 무시
+          // ignore
         }
       }
     }
@@ -156,7 +163,6 @@ function EnglishStudy({ chapter, setChapter }) {
       intervalRef.current = null;
     }
 
-    // 플레이어가 준비되면 항상 시간 추적 (재생 여부 관계없이)
     if (playerRef.current && playerRef.current.getCurrentTime) {
       intervalRef.current = setInterval(() => {
         if (playerRef.current && playerRef.current.getCurrentTime) {
@@ -165,10 +171,10 @@ function EnglishStudy({ chapter, setChapter }) {
             setCurrentTime(time);
             pausedTimeRef.current = time;
           } catch (error) {
-            // API 에러 무시
+            // ignore
           }
         }
-      }, 300); // 더 자주 업데이트 (0.3초마다)
+      }, 300);
     }
 
     return () => {
@@ -176,39 +182,37 @@ function EnglishStudy({ chapter, setChapter }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [currentVideo, playerRef.current]); // playerRef.current 추가
+  }, [currentVideo]);
 
   // active 자막 자동 스크롤
   useEffect(() => {
-    if (subtitleListRef.current) {
-      const container = subtitleListRef.current;
-      
-      if (activeSubtitleRef.current) {
-        const activeElement = activeSubtitleRef.current;
-        const containerTop = container.scrollTop;
-        const containerHeight = container.clientHeight;
-        const activeTop = activeElement.offsetTop;
-        const activeHeight = activeElement.clientHeight;
-        
-        // active 항목이 상단 근처에 위치하도록
-        const targetScrollTop = activeTop - 80;
-        
-        const isVisible = 
-          activeTop >= containerTop + 50 && 
-          activeTop + activeHeight <= containerTop + containerHeight - 50;
-        
-        if (!isVisible) {
-          container.scrollTo({
-            top: Math.max(0, targetScrollTop),
-            behavior: 'smooth'
-          });
-        }
-      } else if (currentTime === 0) {
-        container.scrollTo({
-          top: 0,
-          behavior: 'auto'
-        });
-      }
+    const container = subtitleListRef.current;
+    const activeEl = activeSubtitleRef.current;
+
+    if (!container) return;
+
+    // 0초이면 무조건 맨 위
+    if (currentTime === 0 || !activeEl) {
+      container.scrollTo({ top: 0, behavior: 'auto' });
+      return;
+    }
+
+    const containerTop = container.scrollTop;
+    const containerHeight = container.clientHeight;
+    const activeTop = activeEl.offsetTop;
+    const activeHeight = activeEl.clientHeight;
+
+    const targetScrollTop = activeTop - 80;
+
+    const isVisible =
+      activeTop >= containerTop + 50 &&
+      activeTop + activeHeight <= containerTop + containerHeight - 50;
+
+    if (!isVisible) {
+      container.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth',
+      });
     }
   }, [currentTime, currentPage]);
 
@@ -246,7 +250,8 @@ function EnglishStudy({ chapter, setChapter }) {
 
   // 챕터 모달 열기
   const openChapterModal = () => {
-    const currentPageNum = Math.floor((chapter - 1) / CHAPTERS_PER_PAGE) + 1;
+    const currentPageNum =
+      Math.floor((chapter - 1) / CHAPTERS_PER_PAGE) + 1;
     setChapterPage(currentPageNum);
     setShowChapterModal(true);
   };
@@ -257,10 +262,7 @@ function EnglishStudy({ chapter, setChapter }) {
 
   return (
     <>
-      <button 
-        className="study-level-btn"
-        onClick={openChapterModal}
-      >
+      <button className="study-level-btn" onClick={openChapterModal}>
         Level {chapter}
         <span className="level-arrow">▼</span>
       </button>
@@ -278,10 +280,13 @@ function EnglishStudy({ chapter, setChapter }) {
         <div className="subtitle-list-container" ref={subtitleListRef}>
           <div className="subtitle-list">
             {pageSubtitles.map((subtitle) => {
-              // 오프셋 적용한 시간 비교
-              const adjustedSubtitleTime = subtitle.startTime + SUBTITLE_OFFSET;
-              const isActive = Math.abs(currentTime - adjustedSubtitleTime) <= 2;
-              
+              const adjustedSubtitleTime =
+                subtitle.startTime + SUBTITLE_OFFSET;
+
+              const isActive =
+                currentTime > 0 &&
+                Math.abs(currentTime - adjustedSubtitleTime) <= 2;
+
               return (
                 <div
                   key={subtitle.id}
@@ -289,7 +294,9 @@ function EnglishStudy({ chapter, setChapter }) {
                   className={`subtitle-item ${isActive ? 'active' : ''}`}
                   onClick={() => handleSubtitleClick(subtitle.startTime)}
                 >
-                  <span className="subtitle-time">{formatTime(subtitle.startTime)}</span>
+                  <span className="subtitle-time">
+                    {formatTime(subtitle.startTime)}
+                  </span>
                   <span className="subtitle-text">{subtitle.text}</span>
                 </div>
               );
@@ -336,9 +343,13 @@ function EnglishStudy({ chapter, setChapter }) {
 
               if (Math.abs(swipeDistance) > minSwipeDistance) {
                 if (swipeDistance > 0) {
-                  setChapterPage((p) => Math.min(chapterTotalPages, p + 1));
+                  setChapterPage((p) =>
+                    Math.min(chapterTotalPages, p + 1)
+                  );
                 } else {
-                  setChapterPage((p) => Math.max(1, p - 1));
+                  setChapterPage((p) =>
+                    Math.max(1, p - 1)
+                  );
                 }
               }
             }}
@@ -367,13 +378,19 @@ function EnglishStudy({ chapter, setChapter }) {
 
             <div className="chapter-modal-page-buttons">
               <button
-                onClick={() => setChapterPage((p) => Math.max(1, p - 1))}
+                onClick={() =>
+                  setChapterPage((p) => Math.max(1, p - 1))
+                }
                 disabled={chapterPage === 1}
               >
                 ◀
               </button>
               <button
-                onClick={() => setChapterPage((p) => Math.min(chapterTotalPages, p + 1))}
+                onClick={() =>
+                  setChapterPage((p) =>
+                    Math.min(chapterTotalPages, p + 1)
+                  )
+                }
                 disabled={chapterPage >= chapterTotalPages}
               >
                 ▶
