@@ -18,7 +18,7 @@ function Home({ chapter, setChapter, maxChapter }) {
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
-  const CHAPTERS_PER_PAGE = 10;
+  const CHAPTERS_PER_PAGE = 20;
 
   // 현재 챕터의 단어들
   const chapterWords = useMemo(

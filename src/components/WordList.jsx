@@ -4,11 +4,12 @@ import words from '../data/words.json';
 
 function WordList({ chapter, setChapter, maxChapter }) {
   const WORDS_PER_PAGE = 10;
-  const CHAPTERS_PER_PAGE = 10;
+  const CHAPTERS_PER_PAGE = 20;
 
   const [page, setPage] = useState(1);
   const [showChapterModal, setShowChapterModal] = useState(false);
   const [chapterPage, setChapterPage] = useState(1);
+  const [modalTouchStart, setModalTouchStart] = useState(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [nextChapterDirection, setNextChapterDirection] = useState(null);
 
@@ -359,58 +360,75 @@ function WordList({ chapter, setChapter, maxChapter }) {
       </div>
 
       {/* 챕터 선택 모달 */}
-      {showChapterModal && (
-        <div
-          className="chapter-modal-backdrop"
-          onClick={() => setShowChapterModal(false)}
-        >
-          <div
-            className="chapter-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="chapter-modal-list chapter-modal-grid">
-              {chapterPageItems.map((ch) => (
-                <button
-                  key={ch}
-                  className={
-                    ch === chapter
-                      ? 'chapter-modal-item active'
-                      : 'chapter-modal-item'
-                  }
-                  onClick={() => handleChangeChapter(ch)}
-                >
-                  Level {ch}
-                </button>
-              ))}
-            </div>
+{showChapterModal && (
+  <div
+    className="chapter-modal-backdrop"
+    onClick={() => setShowChapterModal(false)}
+  >
+    <div
+      className="chapter-modal"
+      onClick={(e) => e.stopPropagation()}
+      onTouchStart={(e) => {
+        setModalTouchStart(e.touches[0].clientX);
+      }}
+      onTouchEnd={(e) => {
+        const touchEnd = e.changedTouches[0].clientX;
+        const swipeDistance = modalTouchStart - touchEnd;
+        const minSwipeDistance = 50;
 
-            <div className="chapter-modal-footer">
-              {chapterPage} / {chapterTotalPages}
-            </div>
-
-            <div className="chapter-modal-page-buttons">
-              <button
-                onClick={() =>
-                  setChapterPage((p) =>
-                    p <= 1 ? chapterTotalPages : p - 1,
-                  )
-                }
-              >
-                ◀
-              </button>
-              <button
-                onClick={() =>
-                  setChapterPage((p) =>
-                    p >= chapterTotalPages ? 1 : p + 1,
-                  )
-                }
-              >
-                ▶
-              </button>
-            </div>
-          </div>
+        if (Math.abs(swipeDistance) > minSwipeDistance) {
+          if (swipeDistance > 0) {
+            // 왼쪽 스와이프 -> 다음 페이지
+            setChapterPage((p) => Math.min(chapterTotalPages, p + 1));
+          } else {
+            // 오른쪽 스와이프 -> 이전 페이지
+            setChapterPage((p) => Math.max(1, p - 1));
+          }
+        }
+      }}
+    >
+      <div className="chapter-modal-list">
+        <div className="chapter-modal-grid">
+          {chapterPageItems.map((ch) => (
+            <button
+              key={ch}
+              className={
+                ch === chapter
+                  ? 'chapter-modal-item active'
+                  : 'chapter-modal-item'
+              }
+              onClick={() => handleChangeChapter(ch)}
+            >
+              Level {ch}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
+
+      <div className="chapter-modal-footer">
+        {chapterPage} / {chapterTotalPages}
+      </div>
+
+      <div className="chapter-modal-page-buttons">
+        <button
+          onClick={() => setChapterPage((p) => Math.max(1, p - 1))}
+          disabled={chapterPage === 1}
+        >
+          ◀
+        </button>
+        <button
+          onClick={() =>
+            setChapterPage((p) => Math.min(chapterTotalPages, p + 1))
+          }
+          disabled={chapterPage === chapterTotalPages}
+        >
+          ▶
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* 다음/이전 챕터 확인 다이얼로그 */}
       {showConfirmDialog && (

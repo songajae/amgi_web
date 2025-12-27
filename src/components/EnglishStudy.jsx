@@ -8,6 +8,8 @@ function EnglishStudy({ chapter, setChapter }) {
   const [showChapterModal, setShowChapterModal] = useState(false);
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
+  const subtitleListRef = useRef(null);
+  const activeSubtitleRef = useRef(null);
 
   const SUBTITLES_PER_PAGE = 10;
 
@@ -107,6 +109,26 @@ function EnglishStudy({ chapter, setChapter }) {
     // 재생 상태 변경 처리 (필요시)
   };
 
+  // active 자막 자동 스크롤
+  useEffect(() => {
+    if (activeSubtitleRef.current && subtitleListRef.current) {
+      const container = subtitleListRef.current;
+      const activeElement = activeSubtitleRef.current;
+      
+      const containerHeight = container.clientHeight;
+      const activeTop = activeElement.offsetTop;
+      const activeHeight = activeElement.clientHeight;
+      
+      // active 항목이 컨테이너 중앙에 오도록 스크롤
+      const scrollPosition = activeTop - (containerHeight / 2) + (activeHeight / 2);
+      
+      container.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, [currentTime, currentPage]);
+
   // 자막 클릭 → 해당 시간으로 이동
   const handleSubtitleClick = (startTime) => {
     if (playerRef.current && playerRef.current.seekTo) {
@@ -160,21 +182,22 @@ function EnglishStudy({ chapter, setChapter }) {
         </div>
 
         {/* 자막 리스트 */}
-        <div className="subtitle-list-container">
+        <div className="subtitle-list-container" ref={subtitleListRef}>
           <div className="subtitle-list">
-            {pageSubtitles.map((subtitle) => (
-              <div
-  key={subtitle.id}
-  className={`subtitle-item ${
-    Math.abs(currentTime - subtitle.startTime) <= 3 ? 'active' : ''
-  }`}
-  onClick={() => handleSubtitleClick(subtitle.startTime)}
->
-
-                <span className="subtitle-time">{formatTime(subtitle.startTime)}</span>
-                <span className="subtitle-text">{subtitle.text}</span>
-              </div>
-            ))}
+            {pageSubtitles.map((subtitle) => {
+              const isActive = Math.abs(currentTime - subtitle.startTime) <= 3;
+              return (
+                <div
+                  key={subtitle.id}
+                  ref={isActive ? activeSubtitleRef : null}
+                  className={`subtitle-item ${isActive ? 'active' : ''}`}
+                  onClick={() => handleSubtitleClick(subtitle.startTime)}
+                >
+                  <span className="subtitle-time">{formatTime(subtitle.startTime)}</span>
+                  <span className="subtitle-text">{subtitle.text}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
