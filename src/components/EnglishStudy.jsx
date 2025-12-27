@@ -177,7 +177,7 @@ function EnglishStudy({ chapter, setChapter }) {
     const activeHeight = activeEl.clientHeight;
 
     // 자막 영역 기준, 위에서 3/4 지점에 active가 오도록
-    const targetOffset = (containerHeight * 15) / 16;
+    const targetOffset = 0 //(containerHeight * 15) / 16;
     const targetScrollTop =
       activeTop - targetOffset + activeHeight / 2;
 
