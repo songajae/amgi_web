@@ -1,31 +1,36 @@
 // src/components/BottomNav.jsx
-
 function BottomNav({ activeTab, onTabChange }) {
   return (
     <div className="bottom-nav">
       <button
-        className={`bottom-nav-btn ${activeTab === 'home' ? 'active' : ''}`}
+        className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
         onClick={() => onTabChange('home')}
       >
-        홈
+        🏠<br />홈
       </button>
       <button
-        className={`bottom-nav-btn ${activeTab === 'wordlist' ? 'active' : ''}`}
+        className={`nav-item ${activeTab === 'wordlist' ? 'active' : ''}`}
         onClick={() => onTabChange('wordlist')}
       >
-        단어장
+        📚<br />단어장
       </button>
       <button
-        className={`bottom-nav-btn ${activeTab === 'review' ? 'active' : ''}`}
+        className={`nav-item ${activeTab === 'review' ? 'active' : ''}`}
         onClick={() => onTabChange('review')}
       >
-        복습
+        ✍️<br />복습
       </button>
       <button
-        className={`bottom-nav-btn ${activeTab === 'more' ? 'active' : ''}`}
-        onClick={() => onTabChange('more')}
+        className={`nav-item ${activeTab === 'study' ? 'active' : ''}`}
+        onClick={() => onTabChange('study')}
       >
-        기타
+        🎬<br />영어공부
+      </button>
+      <button
+        className={`nav-item ${activeTab === 'about' ? 'active' : ''}`}
+        onClick={() => onTabChange('about')}
+      >
+        ℹ️<br />정보
       </button>
     </div>
   );
