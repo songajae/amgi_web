@@ -12,6 +12,7 @@ function App() {
   const [chapter, setChapter] = useState(1);
   const [activeTab, setActiveTab] = useState('home');
 
+  // 단어 데이터 기준 전체 최대 챕터
   const maxChapter = useMemo(
     () => Math.max(...words.map((w) => w.chapter || 1)),
     []
@@ -27,7 +28,7 @@ function App() {
       case 'review':
         return '복습';
       case 'study':
-        return '암기송';  // 변경
+        return '암기송';
       case 'about':
         return '정보';
       default:
@@ -37,53 +38,48 @@ function App() {
 
   return (
     <div className="app-root">
-      {/* 상단 헤더 - 모든 탭에 표시 */}
-<div className="top-header">
-  <span className="top-title">{getPageTitle()}</span>
-  {activeTab !== 'about' && (
-    <div className="top-header-right">
-      <span className="page-main">챕터 :{chapter}</span>
-      <span className="page-sub">/ {maxChapter}</span>
-    </div>
-  )}
-</div>
+      <header className="top-header">
+        <div className="top-title">암기송</div>
+        <div className="top-header-right">
+          <span className="page-main">{getPageTitle()}</span>
+        </div>
+      </header>
 
-
-      {/* 메인 콘텐츠 */}
-      <div className="main-content">
+      <main className="main-content with-header">
         {activeTab === 'home' && (
-          <Home 
-            chapter={chapter} 
-            setChapter={setChapter} 
-            maxChapter={maxChapter} 
+          <Home
+            chapter={chapter}
+            setChapter={setChapter}
+            maxChapter={maxChapter}
           />
         )}
-        {activeTab === 'wordlist' && (
-          <WordList 
-            chapter={chapter} 
-            setChapter={setChapter} 
-            maxChapter={maxChapter} 
-          />
-        )}
-        {activeTab === 'review' && (
-          <Review 
-            chapter={chapter} 
-            setChapter={setChapter} 
-            maxChapter={maxChapter} 
-          />
-        )}
-        {activeTab === 'study' && (
-          <EnglishStudy 
-            chapter={chapter} 
-            setChapter={setChapter} 
-            maxChapter={maxChapter} 
-          />
-        )}
-        {activeTab === 'about' && <About />}
-      </div>
 
-      {/* 하단 네비게이션 */}
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        {activeTab === 'wordlist' && (
+          <WordList
+            chapter={chapter}
+            setChapter={setChapter}
+          />
+        )}
+
+        {activeTab === 'review' && (
+          <Review
+            chapter={chapter}
+            setChapter={setChapter}
+          />
+        )}
+
+        {activeTab === 'study' && (
+          <EnglishStudy
+            chapter={chapter}
+            setChapter={setChapter}
+            maxChapter={maxChapter} {/* 🔸 EnglishStudy에도 maxChapter 전달 */}
+          />
+        )}
+
+        {activeTab === 'about' && <About />}
+      </main>
+
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 }
