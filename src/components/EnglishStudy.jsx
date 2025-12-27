@@ -13,7 +13,6 @@ function EnglishStudy({ chapter, setChapter }) {
   const intervalRef = useRef(null);
   const subtitleListRef = useRef(null);
   const activeSubtitleRef = useRef(null);
-  const startTimeRef = useRef(null);
   const pausedTimeRef = useRef(0);
 
   const SUBTITLES_PER_PAGE = 10;
@@ -54,7 +53,6 @@ function EnglishStudy({ chapter, setChapter }) {
     setCurrentTime(0);
     setIsPlaying(false);
     pausedTimeRef.current = 0;
-    startTimeRef.current = null;
     
     // 자막 리스트 맨 위로 스크롤
     if (subtitleListRef.current) {
@@ -122,46 +120,52 @@ function EnglishStudy({ chapter, setChapter }) {
 
   const onPlayerReady = (event) => {
     // 플레이어 준비 완료
+    setIsPlaying(false);
   };
 
   const onPlayerStateChange = (event) => {
     // YouTube Player 상태: 1=재생, 2=일시정지, 0=종료
     if (event.data === 1) {
       // 재생 시작
-      if (!isPlaying) {
-        setIsPlaying(true);
-        startTimeRef.current = Date.now() - (pausedTimeRef.current * 1000);
-      }
+      setIsPlaying(true);
     } else if (event.data === 2 || event.data === 0) {
       // 일시정지 또는 종료
-      if (isPlaying) {
-        setIsPlaying(false);
-        pausedTimeRef.current = currentTime;
-      }
+      setIsPlaying(false);
     }
   };
 
-  // 재생 시간 추적 (실제 시간 기반)
+  // 재생 시간 추적 (YouTube Player API 기반)
   useEffect(() => {
-    if (!isPlaying) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (!playerRef.current || !playerRef.current.getCurrentTime) {
       return;
     }
 
-    intervalRef.current = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      setCurrentTime(elapsed);
-    }, 500);
+    // 재생 중일 때만 시간 업데이트
+    if (isPlaying) {
+      intervalRef.current = setInterval(() => {
+        if (playerRef.current && playerRef.current.getCurrentTime) {
+          try {
+            const time = Math.floor(playerRef.current.getCurrentTime());
+            setCurrentTime(time);
+            pausedTimeRef.current = time;
+          } catch (error) {
+            // YouTube API 에러 무시
+          }
+        }
+      }, 500);
+    }
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isPlaying]);
+  }, [isPlaying, currentVideo]); // isPlaying 의존성 추가
 
   // active 자막 자동 스크롤
   useEffect(() => {
@@ -171,17 +175,25 @@ function EnglishStudy({ chapter, setChapter }) {
       // active 자막이 있으면 스크롤
       if (activeSubtitleRef.current) {
         const activeElement = activeSubtitleRef.current;
+        const containerTop = container.scrollTop;
         const containerHeight = container.clientHeight;
         const activeTop = activeElement.offsetTop;
         const activeHeight = activeElement.clientHeight;
         
-        // active 항목이 컨테이너 상단 1/3 위치에 오도록 스크롤
-        const scrollPosition = activeTop - (containerHeight / 3);
+        // active 항목이 상단에서 약간 아래(100px)에 위치하도록 스크롤
+        const targetScrollTop = activeTop - 100;
         
-        container.scrollTo({
-          top: Math.max(0, scrollPosition),
-          behavior: 'smooth'
-        });
+        // 현재 보이는 영역을 벗어났을 때만 스크롤
+        const isVisible = 
+          activeTop >= containerTop && 
+          activeTop + activeHeight <= containerTop + containerHeight;
+        
+        if (!isVisible) {
+          container.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: 'smooth'
+          });
+        }
       } else if (currentTime === 0) {
         // 영상이 처음이면 맨 위로 스크롤
         container.scrollTo({
@@ -201,7 +213,6 @@ function EnglishStudy({ chapter, setChapter }) {
       // 수동 시간 업데이트
       setCurrentTime(startTime);
       pausedTimeRef.current = startTime;
-      startTimeRef.current = Date.now() - (startTime * 1000);
       setIsPlaying(true);
     }
   };
@@ -225,7 +236,6 @@ function EnglishStudy({ chapter, setChapter }) {
     setCurrentTime(0);
     setIsPlaying(false);
     pausedTimeRef.current = 0;
-    startTimeRef.current = null;
   };
 
   // 챕터 모달 열기
