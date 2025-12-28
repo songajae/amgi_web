@@ -45,6 +45,7 @@ function Review({ chapter, setChapter, maxChapter }) {
     [chapter]
   );
 
+  // 랜덤 인덱스 생성
   useEffect(() => {
     if (isRandomMode && chapterWords.length > 0) {
       const indices = Array.from({ length: chapterWords.length }, (_, i) => i);
@@ -53,14 +54,38 @@ function Review({ chapter, setChapter, maxChapter }) {
         [indices[i], indices[j]] = [indices[j], indices[i]];
       }
       setRandomIndices(indices);
+    } else {
+      setRandomIndices([]);
     }
   }, [isRandomMode, chapterWords.length, chapter]);
 
+  // 챕터 변경 시 인덱스 초기화
   useEffect(() => {
     setCurrentWordIndex(0);
     setShowContent(false);
     setStudiedWords(new Set());
   }, [chapter]);
+
+  // ✅ 첫 단어 자동 발음 (페이지 들어왔을 때)
+  useEffect(() => {
+    if (!autoPronounce) return;
+    if (chapterWords.length === 0) return;
+
+    const idx =
+      isRandomMode && randomIndices.length > 0
+        ? randomIndices[0]
+        : 0;
+    const firstWord = chapterWords[idx];
+
+    if (!firstWord?.word) return;
+
+    if (reviewMode === 'word-first') {
+      // 단어->뜻 모드: 첫 화면에서 단어만 읽기
+      speakText(firstWord.word);
+    } else if (reviewMode === 'meaning-first') {
+      // 뜻->단어 모드: 처음엔 뜻화면이므로 소리 없음
+    }
+  }, [chapterWords, isRandomMode, randomIndices, reviewMode, autoPronounce]);
 
   const handleRandomModeToggle = () => {
     setIsRandomMode(!isRandomMode);
@@ -104,11 +129,10 @@ function Review({ chapter, setChapter, maxChapter }) {
 
       if (autoPronounce && nextWord?.word) {
         if (reviewMode === 'word-first') {
-          // 1. 단어->뜻 모드: 단어 화면에서 단어만 발음
+          // 단어->뜻 모드: 단어 화면에서 단어만 발음
           speakText(nextWord.word);
         } else if (reviewMode === 'meaning-first') {
-          // 2. 뜻->단어 모드: 뜻 화면에서는 소리 없음 (여기는 단어 화면 진입 전)
-          // 아무 것도 하지 않음
+          // 뜻->단어 모드: 뜻 화면에서는 소리 없음
         }
       }
     } else {
@@ -133,7 +157,7 @@ function Review({ chapter, setChapter, maxChapter }) {
         if (reviewMode === 'word-first') {
           speakText(prevWord.word);
         } else if (reviewMode === 'meaning-first') {
-          // 뜻 먼저 모드에서는 의미 화면 진입 시 발음 없음
+          // 뜻 먼저 모드: 뜻 화면에서는 소리 없음
         }
       }
     } else {
@@ -241,16 +265,17 @@ function Review({ chapter, setChapter, maxChapter }) {
       if (!autoPronounce) return;
 
       if (reviewMode === 'word-first') {
-        // 1. 단어->뜻 모드: 예문이 나올 때 예문만 발음 (예문 없으면 아무 것도 안 함)
+        // 단어->뜻 모드: 예문이 나올 때 예문만 발음
         if (pronounceExample && currentWord.example) {
           speakText(currentWord.example);
         }
       } else if (reviewMode === 'meaning-first') {
-        // 2. 뜻->단어 모드: 단어 화면으로 넘어갈 때 단어 + 예문 발음
+        // 뜻->단어 모드: 단어 + 예문 발음 (순서 보장)
         if (currentWord.word) {
           speakText(currentWord.word);
         }
         if (pronounceExample && currentWord.example) {
+          // 두 번째로 예문 발음
           speakText(currentWord.example);
         }
       }
