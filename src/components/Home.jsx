@@ -12,7 +12,7 @@ function Home({ chapter, setChapter, maxChapter }) {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [showDetail, setShowDetail] = useState(false); // 단어만 / 단어+뜻·예문 토글
 
-  // 🔊 홈 화면 TTS on/off
+  // 🔊 홈 TTS on/off
   const [isSoundOn, setIsSoundOn] = useState(true);
 
   const touchStartX = useRef(0);
@@ -198,6 +198,7 @@ function Home({ chapter, setChapter, maxChapter }) {
     <div className="home-container">
       {/* 상단 컨트롤 바 (박스 밖) */}
       <div className="home-controls">
+        {/* 왼쪽 Level 버튼 */}
         <button
           className="review-level-btn-outside"
           onClick={openChapterModal}
@@ -206,28 +207,32 @@ function Home({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
-        {/* 🔊 소리 on/off 토글 (스피커 아이콘) */}
-        <button
-          className="home-sound-toggle-btn"
-          onClick={() => setIsSoundOn((prev) => !prev)}
-        >
-          {isSoundOn ? '🔊' : '🔈'}
-        </button>
+        {/* 오른쪽: 플레이, 스피커, 셋팅 */}
+        <div className="home-right-buttons">
+          {/* ▶ 자동재생 토글 */}
+          <button
+            className="home-icon-btn home-autoplay-btn"
+            onClick={() => setIsAutoPlay((prev) => !prev)}
+          >
+            {isAutoPlay ? '⏸' : '▶'}
+          </button>
 
-        {/* 자동재생 토글 버튼 (아이콘만, 박스 없음) */}
-        <button
-          className="home-autoplay-btn"
-          onClick={() => setIsAutoPlay((prev) => !prev)}
-        >
-          {isAutoPlay ? '⏸' : '▶'}
-        </button>
+          {/* 🔊/🔈 TTS on/off */}
+          <button
+            className="home-icon-btn home-sound-btn"
+            onClick={() => setIsSoundOn((prev) => !prev)}
+          >
+            {isSoundOn ? '🔊' : '🔈'}
+          </button>
 
-        <button
-          className="home-settings-btn-outside"
-          onClick={() => setShowSettings(!showSettings)}
-        >
-          ⚙️
-        </button>
+          {/* ⚙ 설정 */}
+          <button
+            className="home-icon-btn home-settings-btn-outside"
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            ⚙️
+          </button>
+        </div>
       </div>
 
       {/* 단어 카드 */}
