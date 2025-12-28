@@ -1,3 +1,4 @@
+// src/components/Home.jsx
 import { useState, useEffect, useMemo, useRef } from 'react';
 import words from '../data/words.json';
 import youtubeData from '../data/youtube.json';
@@ -12,7 +13,7 @@ function Home({ chapter, setChapter, maxChapter }) {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [showDetail, setShowDetail] = useState(false); // 단어만 / 단어+뜻·예문 토글
 
-  // 🔊 홈 TTS on/off
+  // 🔊 홈 TTS on/off (복습 autoPronounce와 같은 역할)
   const [isSoundOn, setIsSoundOn] = useState(true);
 
   const touchStartX = useRef(0);
@@ -45,6 +46,7 @@ function Home({ chapter, setChapter, maxChapter }) {
     const utter = new SpeechSynthesisUtterance(currentWord.word);
     utter.lang = 'en-US';
     utter.rate = 0.95;
+    utter.volume = 1;
 
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
@@ -194,11 +196,13 @@ function Home({ chapter, setChapter, maxChapter }) {
     }
   };
 
+  const speakerIcon = isSoundOn ? '🔊' : '🔇';
+
   return (
     <div className="home-container">
       {/* 상단 컨트롤 바 (박스 밖) */}
       <div className="home-controls">
-        {/* 왼쪽 Level 버튼 */}
+        {/* 왼쪽 Level 버튼 (복습과 동일 스타일) */}
         <button
           className="review-level-btn-outside"
           onClick={openChapterModal}
@@ -207,9 +211,17 @@ function Home({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
-        {/* 오른쪽: 플레이, 스피커, 셋팅 */}
+        {/* 오른쪽: 랜덤/스피커/설정처럼 박스 아이콘 2개 + 설정 옆에 배치 */}
         <div className="home-right-buttons">
-          {/* ▶ 자동재생 토글 */}
+          {/* 홈 자동 발음 스피커 (복습 상단과 동일 느낌) */}
+          <button
+            className="home-icon-btn home-sound-btn"
+            onClick={() => setIsSoundOn((prev) => !prev)}
+          >
+            {speakerIcon}
+          </button>
+
+          {/* 홈 자동재생 ▶/⏸ 아이콘 */}
           <button
             className="home-icon-btn home-autoplay-btn"
             onClick={() => setIsAutoPlay((prev) => !prev)}
@@ -217,17 +229,9 @@ function Home({ chapter, setChapter, maxChapter }) {
             {isAutoPlay ? '⏸' : '▶'}
           </button>
 
-          {/* 🔊/🔈 TTS on/off */}
+          {/* ⚙ 설정 (아이콘 박스는 아니지만, 이미지처럼 바로 옆에 위치) */}
           <button
-            className="home-icon-btn home-sound-btn"
-            onClick={() => setIsSoundOn((prev) => !prev)}
-          >
-            {isSoundOn ? '🔊' : '🔈'}
-          </button>
-
-          {/* ⚙ 설정 */}
-          <button
-            className="home-icon-btn home-settings-btn-outside"
+            className="review-settings-btn-outside"
             onClick={() => setShowSettings(!showSettings)}
           >
             ⚙️
