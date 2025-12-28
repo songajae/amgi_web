@@ -12,6 +12,9 @@ function Home({ chapter, setChapter, maxChapter }) {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [showDetail, setShowDetail] = useState(false); // 단어만 / 단어+뜻·예문 토글
 
+  // 🔊 홈 화면 TTS on/off
+  const [isSoundOn, setIsSoundOn] = useState(true);
+
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const touchStartY = useRef(0);
@@ -25,11 +28,27 @@ function Home({ chapter, setChapter, maxChapter }) {
     [chapter]
   );
 
+  const currentWord = chapterWords[currentWordIndex] || {};
+
   // 챕터가 변경되면 첫 단어로 리셋
   useEffect(() => {
     setCurrentWordIndex(0);
     setShowDetail(false); // 항상 단어만부터 시작
   }, [chapter]);
+
+  // 🔊 단어가 바뀔 때 TTS 재생 (sound on일 때만)
+  useEffect(() => {
+    if (!isSoundOn) return;
+    if (!currentWord.word) return;
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    const utter = new SpeechSynthesisUtterance(currentWord.word);
+    utter.lang = 'en-US';
+    utter.rate = 0.95;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  }, [currentWord.word, isSoundOn]);
 
   // 자동 재생 기능: 단어 -> 단어+뜻/예문 -> 다음 단어 -> ...
   useEffect(() => {
@@ -80,8 +99,6 @@ function Home({ chapter, setChapter, maxChapter }) {
 
     fetchVideoInfo();
   }, []);
-
-  const currentWord = chapterWords[currentWordIndex] || {};
 
   const handlePrevWord = () => {
     setCurrentWordIndex((prev) => {
@@ -189,7 +206,15 @@ function Home({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
-        {/* 자동재생 토글 버튼 */}
+        {/* 🔊 소리 on/off 토글 (스피커 아이콘) */}
+        <button
+          className="home-sound-toggle-btn"
+          onClick={() => setIsSoundOn((prev) => !prev)}
+        >
+          {isSoundOn ? '🔊' : '🔈'}
+        </button>
+
+        {/* 자동재생 토글 버튼 (아이콘만, 박스 없음) */}
         <button
           className="home-autoplay-btn"
           onClick={() => setIsAutoPlay((prev) => !prev)}
