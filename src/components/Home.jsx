@@ -217,8 +217,8 @@ function Home({ chapter, setChapter, maxChapter }) {
 
   const speakerIcon = isSoundOn ? '🔊' : '🔇';
 
-  // ▶ / ■ 아이콘 사용
-  const playIcon = isAutoPlay ? '■' : '▶';
+  // ▶ / ■ 아이콘 사용 (멈춤=■, 재생=▶)
+const playIcon = isAutoPlay ? '▶' : '■';
 
   return (
     <div className="home-container">
