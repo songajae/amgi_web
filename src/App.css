@@ -553,7 +553,7 @@ body {
   top: 50%;
   height: 2px;
   background: #fe623f;        /* 빨간/주황 사선 색 */
-  transform: rotate(-20deg);  /* 기울기 */
+  transform: rotate(20deg);  /* 기울기 */
   pointer-events: none;
 }
 
