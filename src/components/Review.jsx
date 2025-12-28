@@ -222,7 +222,6 @@ function Review({ chapter, setChapter, maxChapter }) {
   const handleCardClick = () => {
     if (!showContent) {
       setShowContent(true);
-      // 예문이 보일 때도 단어 발음
       if (autoPronounce && currentWord.word) {
         speakText(currentWord.word);
       }
@@ -277,6 +276,13 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
+  // 모달에서 학습 모드 토글 (단어→뜻 / 뜻→단어)
+  const toggleTempReviewMode = () => {
+    setTempReviewMode((prev) =>
+      prev === 'word-first' ? 'meaning-first' : 'word-first'
+    );
+  };
+
   return (
     <div className="review-container">
       {/* 상단 컨트롤 바 (박스 밖) */}
@@ -320,22 +326,27 @@ function Review({ chapter, setChapter, maxChapter }) {
           className="review-settings-panel"
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            className="settings-close-btn"
-            onClick={() => setShowSettings(false)}
-          >
-            ✕
-          </button>
+          <div className="review-settings-header">
+            <span className="review-settings-title">학습 설정</span>
+            <button
+              className="settings-close-btn"
+              onClick={() => setShowSettings(false)}
+            >
+              ✕
+            </button>
+          </div>
 
           <div className="setting-item review-setting-item-row">
             <span className="review-setting-label">학습 모드:</span>
-            <select
-              value={tempReviewMode}
-              onChange={(e) => setTempReviewMode(e.target.value)}
+
+            {/* 토글 버튼: 단어→뜻 / 뜻→단어 번갈아 표시 */}
+            <button
+              className="review-mode-toggle-btn"
+              onClick={toggleTempReviewMode}
             >
-              <option value="word-first">단어 → 뜻</option>
-              <option value="meaning-first">뜻 → 단어</option>
-            </select>
+              {tempReviewMode === 'word-first' ? '단어 → 뜻' : '뜻 → 단어'}
+            </button>
+
             <button
               className="settings-apply-btn"
               onClick={() => {
