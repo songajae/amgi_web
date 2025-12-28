@@ -66,7 +66,7 @@ function Review({ chapter, setChapter, maxChapter }) {
     setStudiedWords(new Set());
   }, [chapter]);
 
-  // ✅ 첫 단어 자동 발음 (페이지 들어왔을 때)
+  // 첫 단어 자동 발음
   useEffect(() => {
     if (!autoPronounce) return;
     if (chapterWords.length === 0) return;
@@ -80,10 +80,9 @@ function Review({ chapter, setChapter, maxChapter }) {
     if (!firstWord?.word) return;
 
     if (reviewMode === 'word-first') {
-      // 단어->뜻 모드: 첫 화면에서 단어만 읽기
       speakText(firstWord.word);
     } else if (reviewMode === 'meaning-first') {
-      // 뜻->단어 모드: 처음엔 뜻화면이므로 소리 없음
+      // 뜻 먼저 모드는 처음엔 무음
     }
   }, [chapterWords, isRandomMode, randomIndices, reviewMode, autoPronounce]);
 
@@ -120,7 +119,6 @@ function Review({ chapter, setChapter, maxChapter }) {
         setShowEndDialog(true);
       }
 
-      // 다음 단어로 넘어갈 때의 발음 규칙
       const realIndex =
         isRandomMode && randomIndices.length > 0
           ? randomIndices[nextIdx]
@@ -129,10 +127,9 @@ function Review({ chapter, setChapter, maxChapter }) {
 
       if (autoPronounce && nextWord?.word) {
         if (reviewMode === 'word-first') {
-          // 단어->뜻 모드: 단어 화면에서 단어만 발음
           speakText(nextWord.word);
         } else if (reviewMode === 'meaning-first') {
-          // 뜻->단어 모드: 뜻 화면에서는 소리 없음
+          // 뜻 화면에서는 무음
         }
       }
     } else {
@@ -157,7 +154,7 @@ function Review({ chapter, setChapter, maxChapter }) {
         if (reviewMode === 'word-first') {
           speakText(prevWord.word);
         } else if (reviewMode === 'meaning-first') {
-          // 뜻 먼저 모드: 뜻 화면에서는 소리 없음
+          // 뜻 화면에서는 무음
         }
       }
     } else {
@@ -265,17 +262,14 @@ function Review({ chapter, setChapter, maxChapter }) {
       if (!autoPronounce) return;
 
       if (reviewMode === 'word-first') {
-        // 단어->뜻 모드: 예문이 나올 때 예문만 발음
         if (pronounceExample && currentWord.example) {
           speakText(currentWord.example);
         }
       } else if (reviewMode === 'meaning-first') {
-        // 뜻->단어 모드: 단어 + 예문 발음 (순서 보장)
         if (currentWord.word) {
           speakText(currentWord.word);
         }
         if (pronounceExample && currentWord.example) {
-          // 두 번째로 예문 발음
           speakText(currentWord.example);
         }
       }
@@ -330,11 +324,17 @@ function Review({ chapter, setChapter, maxChapter }) {
     }
   };
 
-  // 모달에서 학습 모드 토글 (단어→뜻 / 뜻→단어)
-  const toggleTempReviewMode = () => {
-    setTempReviewMode((prev) =>
-      prev === 'word-first' ? 'meaning-first' : 'word-first'
-    );
+  // 모달에서 학습 모드 토글 (단어→뜻 / 뜻→단어) + 즉시 적용
+  const handleReviewModeToggleClick = () => {
+    setTempReviewMode((prev) => {
+      const next = prev === 'word-first' ? 'meaning-first' : 'word-first';
+      // 즉시 실제 모드에도 반영
+      setReviewMode(next);
+      setShowContent(false);
+      setCurrentWordIndex(0);
+      setStudiedWords(new Set());
+      return next;
+    });
   };
 
   // 스피커 아이콘 (전체 소리 ON/OFF)
@@ -397,25 +397,12 @@ function Review({ chapter, setChapter, maxChapter }) {
           <div className="setting-item review-setting-item-row">
             <span className="review-setting-label">학습 모드:</span>
 
-            {/* 토글 버튼: 단어→뜻 / 뜻→단어 번갈아 표시 */}
+            {/* 토글 버튼: 단어→뜻 / 뜻→단어, 누르면 즉시 적용 */}
             <button
               className="review-mode-toggle-btn"
-              onClick={toggleTempReviewMode}
+              onClick={handleReviewModeToggleClick}
             >
               {tempReviewMode === 'word-first' ? '단어 → 뜻' : '뜻 → 단어'}
-            </button>
-
-            <button
-              className="settings-apply-btn"
-              onClick={() => {
-                setReviewMode(tempReviewMode);
-                setShowContent(false);
-                setCurrentWordIndex(0);
-                setStudiedWords(new Set());
-                setShowSettings(false);
-              }}
-            >
-              적용
             </button>
           </div>
 
