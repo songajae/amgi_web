@@ -78,8 +78,12 @@ function Review({ chapter, setChapter, maxChapter }) {
   const currentWord = chapterWords[getCurrentIndex()] || {};
 
   const handleNextWord = () => {
-    if (currentWordIndex < chapterWords.length - 1) {
-      setCurrentWordIndex((prev) => prev + 1);
+    const lastIndex = chapterWords.length - 1;
+    const isLast = currentWordIndex >= lastIndex;
+
+    if (!isLast) {
+      const nextIdx = currentWordIndex + 1;
+      setCurrentWordIndex(nextIdx);
       setShowContent(false);
 
       const newStudiedWords = new Set(studiedWords);
@@ -89,33 +93,35 @@ function Review({ chapter, setChapter, maxChapter }) {
       if (newStudiedWords.size >= chapterWords.length) {
         setShowEndDialog(true);
       }
+
+      const realIndex =
+        isRandomMode && randomIndices.length > 0
+          ? randomIndices[nextIdx]
+          : nextIdx;
+      const nextWord = chapterWords[realIndex];
+      if (autoPronounce && nextWord?.word) {
+        speakText(nextWord.word);
+      }
     } else {
       setNextChapterDirection('next');
       setShowConfirmDialog(true);
     }
-
-    // 다음 단어 TTS (사용자 터치 후에만 동작하는 흐름이라 모바일 정책에 맞음)
-    setTimeout(() => {
-      const idx = getCurrentIndex();
-      const next = chapterWords[idx];
-      if (autoPronounce && next?.word) {
-        speakText(next.word);
-      }
-    }, 200);
   };
 
   const handlePrevWord = () => {
     if (currentWordIndex > 0) {
-      setCurrentWordIndex((prev) => prev - 1);
+      const prevIdx = currentWordIndex - 1;
+      setCurrentWordIndex(prevIdx);
       setShowContent(false);
 
-      setTimeout(() => {
-        const idx = getCurrentIndex();
-        const prev = chapterWords[idx];
-        if (autoPronounce && prev?.word) {
-          speakText(prev.word);
-        }
-      }, 200);
+      const realIndex =
+        isRandomMode && randomIndices.length > 0
+          ? randomIndices[prevIdx]
+          : prevIdx;
+      const prevWord = chapterWords[realIndex];
+      if (autoPronounce && prevWord?.word) {
+        speakText(prevWord.word);
+      }
     } else {
       setNextChapterDirection('prev');
       setShowConfirmDialog(true);
@@ -216,13 +222,9 @@ function Review({ chapter, setChapter, maxChapter }) {
   const handleCardClick = () => {
     if (!showContent) {
       setShowContent(true);
-      // 뜻/예문이 나올 때 영어 발음 (예문 우선, 없으면 단어)
-      if (autoPronounce) {
-        if (currentWord.example) {
-          speakText(currentWord.example);
-        } else if (currentWord.word) {
-          speakText(currentWord.word);
-        }
+      // 예문이 보일 때도 단어 발음
+      if (autoPronounce && currentWord.word) {
+        speakText(currentWord.word);
       }
     } else {
       handleNextWord();
@@ -268,10 +270,8 @@ function Review({ chapter, setChapter, maxChapter }) {
 
     if (Math.abs(swipeDistance) > minSwipeDistance) {
       if (swipeDistance > 0) {
-        // 왼쪽으로 스와이프 -> 다음 페이지
         setChapterPage((p) => Math.min(chapterTotalPages, p + 1));
       } else {
-        // 오른쪽으로 스와이프 -> 이전 페이지
         setChapterPage((p) => Math.max(1, p - 1));
       }
     }
@@ -296,7 +296,6 @@ function Review({ chapter, setChapter, maxChapter }) {
           랜덤 : {isRandomMode ? 'ON' : 'OFF'}
         </button>
 
-        {/* 자동 발음 토글 */}
         <button
           className="review-auto-btn-outside"
           onClick={() => setAutoPronounce((prev) => !prev)}
@@ -329,7 +328,7 @@ function Review({ chapter, setChapter, maxChapter }) {
           </button>
 
           <div className="setting-item review-setting-item-row">
-            <label>학습 모드:</label>
+            <span className="review-setting-label">학습 모드:</span>
             <select
               value={tempReviewMode}
               onChange={(e) => setTempReviewMode(e.target.value)}
