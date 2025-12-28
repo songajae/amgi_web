@@ -375,11 +375,14 @@ function Review({ chapter, setChapter, maxChapter }) {
         </button>
 
         <button
-          className="review-random-btn-outside"
+          className={`review-random-btn-outside ${
+            isRandomMode ? '' : 'review-random-off'
+          }`}
           onClick={handleRandomModeToggle}
         >
-          {isRandomMode ? '랜덤' : '순차'}
+          랜덤
         </button>
+
 
         {/* 스피커 토글 버튼 */}
         <button
