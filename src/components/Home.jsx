@@ -13,13 +13,8 @@ function Home({ chapter, setChapter, maxChapter }) {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [showDetail, setShowDetail] = useState(false); // 단어만 / 단어+뜻·예문 토글
 
-  // 🔊 홈 TTS on/off
+  // 🔊 홈 TTS on/off (복습 autoPronounce와 같은 역할)
   const [isSoundOn, setIsSoundOn] = useState(true);
-
-  // 홈 전용 단어/뜻 순서 (Review의 reviewMode와 동일 개념)
-  // 'word-first' = 단어 크게 + 아래 뜻/예문 (현재 방식)
-  // 'meaning-first' = 뜻을 먼저 크게, 단어는 위/아래로 재배치
-  const [homeReviewMode, setHomeReviewMode] = useState('word-first');
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -203,11 +198,15 @@ function Home({ chapter, setChapter, maxChapter }) {
 
   const speakerIcon = isSoundOn ? '🔊' : '🔇';
 
+  // ▶ / ⏸ 대신 고정 폭에 가까운 아이콘 사용
+  const playIcon = isAutoPlay ? '⏹' : '▶'; // 정지(■) 또는 ▶
+  // 원하시면 둘 다 박스형으로: const playIcon = isAutoPlay ? '⏹' : '⏵';
+
   return (
     <div className="home-container">
       {/* 상단 컨트롤 바 (박스 밖) */}
       <div className="home-controls">
-        {/* 왼쪽 Level 버튼 */}
+        {/* 왼쪽 Level 버튼 (복습과 동일 스타일) */}
         <button
           className="review-level-btn-outside"
           onClick={openChapterModal}
@@ -216,9 +215,9 @@ function Home({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
-        {/* 오른쪽: 스피커, 플레이, 설정 (이미지처럼 가로 배치) */}
+        {/* 오른쪽: 스피커 / 플레이 / 설정 (배치는 그대로) */}
         <div className="home-right-buttons">
-          {/* 홈 자동 발음 스피커 (박스 버튼) */}
+          {/* 홈 자동 발음 스피커 */}
           <button
             className="home-icon-btn home-sound-btn"
             onClick={() => setIsSoundOn((prev) => !prev)}
@@ -226,18 +225,18 @@ function Home({ chapter, setChapter, maxChapter }) {
             {speakerIcon}
           </button>
 
-          {/* 홈 자동재생 ▶/⏸ (아이콘 크기 통일) */}
+          {/* 홈 자동재생 아이콘 (크기 일정하게 유지) */}
           <button
             className="home-icon-btn home-autoplay-btn"
             onClick={() => setIsAutoPlay((prev) => !prev)}
           >
-            {isAutoPlay ? '⏸' : '▶'}
+            {playIcon}
           </button>
 
-          {/* ⚙ 설정 아이콘: 박스 제거, 기존 Review 크기로 복원 */}
+          {/* ⚙ 설정 (아이콘만) */}
           <button
             className="review-settings-btn-outside"
-            onClick={() => setShowSettings((prev) => !prev)}
+            onClick={() => setShowSettings(!showSettings)}
           >
             ⚙️
           </button>
@@ -260,8 +259,6 @@ function Home({ chapter, setChapter, maxChapter }) {
             >
               ✕
             </button>
-
-            {/* 단어 전환 시간 */}
             <div className="setting-item">
               <label>
                 단어 전환 시간: {autoPlayInterval / 1000}초
@@ -275,109 +272,30 @@ function Home({ chapter, setChapter, maxChapter }) {
                 />
               </label>
             </div>
-
-            {/* 단어/뜻 순서 설정 (Review와 동일 개념) */}
-            <div className="setting-item">
-              <label>표시 순서</label>
-              <select
-                value={homeReviewMode}
-                onChange={(e) => {
-                  const next = e.target.value;
-                  setHomeReviewMode(next);
-                  // 모드 바꾸면 다시 단어만부터 보기
-                  setShowDetail(false);
-                }}
-              >
-                <option value="word-first">단어 → 뜻/예문</option>
-                <option value="meaning-first">뜻/예문 → 단어</option>
-              </select>
-            </div>
           </div>
         )}
 
-        {/* 표기 순서에 따른 상단/내용 구성 */}
-        {homeReviewMode === 'word-first' ? (
-          <>
-            {/* 단어: 항상 크게 표시 */}
-            <div className="flashcard-word">
-              {currentWord.word || 'No word'}
-            </div>
+        {/* 단어: 항상 표시 */}
+        <div className="flashcard-word">{currentWord.word || 'No word'}</div>
 
-            {/* showDetail 이 true 일 때만 뜻/예문 표시 */}
-            {showDetail && (
-              <>
-                <div className="flashcard-meanings">
-                  {meanings.map((m, index) => (
-                    <div key={index} className="flashcard-meaning">
-                      {m.pos && <span className="pos-tag">{m.pos}</span>}{' '}
-                      {m.meaning}
-                    </div>
-                  ))}
-                </div>
-                <div className="flashcard-example">
-                  {currentWord.example && (
-                    <div className="example-en">{currentWord.example}</div>
-                  )}
-                  {currentWord.exampleMeaning && (
-                    <div className="example-ko">
-                      {currentWord.exampleMeaning}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </>
-        ) : (
+        {/* showDetail 이 true 일 때만 뜻/예문 표시 */}
+        {showDetail && (
           <>
-            {/* 뜻/예문 먼저 */}
-            {showDetail ? (
-              <>
-                {/* 단어 + 뜻/예문 모두 표시 */}
-                <div className="flashcard-word">
-                  {currentWord.word || 'No word'}
+            <div className="flashcard-meanings">
+              {meanings.map((m, index) => (
+                <div key={index} className="flashcard-meaning">
+                  {m.pos && <span className="pos-tag">{m.pos}</span>} {m.meaning}
                 </div>
-                <div className="flashcard-meanings">
-                  {meanings.map((m, index) => (
-                    <div key={index} className="flashcard-meaning">
-                      {m.pos && <span className="pos-tag">{m.pos}</span>}{' '}
-                      {m.meaning}
-                    </div>
-                  ))}
-                </div>
-                <div className="flashcard-example">
-                  {currentWord.example && (
-                    <div className="example-en">{currentWord.example}</div>
-                  )}
-                  {currentWord.exampleMeaning && (
-                    <div className="example-ko">
-                      {currentWord.exampleMeaning}
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                {/* 처음에는 뜻/예문만 보여주고 단어는 숨김 */}
-                <div className="flashcard-meanings">
-                  {meanings.map((m, index) => (
-                    <div key={index} className="flashcard-meaning">
-                      {m.pos && <span className="pos-tag">{m.pos}</span>}{' '}
-                      {m.meaning}
-                    </div>
-                  ))}
-                </div>
-                <div className="flashcard-example">
-                  {currentWord.example && (
-                    <div className="example-en">{currentWord.example}</div>
-                  )}
-                  {currentWord.exampleMeaning && (
-                    <div className="example-ko">
-                      {currentWord.exampleMeaning}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+              ))}
+            </div>
+            <div className="flashcard-example">
+              {currentWord.example && (
+                <div className="example-en">{currentWord.example}</div>
+              )}
+              {currentWord.exampleMeaning && (
+                <div className="example-ko">{currentWord.exampleMeaning}</div>
+              )}
+            </div>
           </>
         )}
 
