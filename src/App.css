@@ -817,6 +817,41 @@ body {
   color: #ffffff;
 }
 
+/* Review 상단 자동 발음 버튼 */
+.review-auto-btn-outside {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+
+/* Review 설정 패널 안에서 가로 정렬 */
+.review-setting-item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-setting-item-row select {
+  flex: 1;
+}
+
+/* 적용 버튼 */
+.settings-apply-btn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #fe623f;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 
 /******************************************************************
  * About.jsx

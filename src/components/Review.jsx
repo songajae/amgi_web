@@ -13,17 +13,31 @@ function Review({ chapter, setChapter, maxChapter }) {
   const [studiedWords, setStudiedWords] = useState(new Set());
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [reviewMode, setReviewMode] = useState('word-first');
+  const [tempReviewMode, setTempReviewMode] = useState('word-first'); // 모달용 임시 상태
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [nextChapterDirection, setNextChapterDirection] = useState(null);
   const [modalTouchStart, setModalTouchStart] = useState(0);
   const [modalTouchEnd, setModalTouchEnd] = useState(0);
-  
+
+  const [autoPronounce, setAutoPronounce] = useState(true); // TTS 자동 여부
+
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
   const CHAPTERS_PER_PAGE = 20; // 2열 x 10행
+
+  // TTS 함수
+  const speakText = (text) => {
+    if (!text || !window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.95;
+    utterance.volume = 1;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
 
   const chapterWords = useMemo(
     () => words.filter((w) => (w.chapter || 1) === chapter),
@@ -67,11 +81,11 @@ function Review({ chapter, setChapter, maxChapter }) {
     if (currentWordIndex < chapterWords.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
       setShowContent(false);
-      
+
       const newStudiedWords = new Set(studiedWords);
       newStudiedWords.add(getCurrentIndex());
       setStudiedWords(newStudiedWords);
-      
+
       if (newStudiedWords.size >= chapterWords.length) {
         setShowEndDialog(true);
       }
@@ -79,12 +93,29 @@ function Review({ chapter, setChapter, maxChapter }) {
       setNextChapterDirection('next');
       setShowConfirmDialog(true);
     }
+
+    // 다음 단어 TTS (사용자 터치 후에만 동작하는 흐름이라 모바일 정책에 맞음)
+    setTimeout(() => {
+      const idx = getCurrentIndex();
+      const next = chapterWords[idx];
+      if (autoPronounce && next?.word) {
+        speakText(next.word);
+      }
+    }, 200);
   };
 
   const handlePrevWord = () => {
     if (currentWordIndex > 0) {
       setCurrentWordIndex((prev) => prev - 1);
       setShowContent(false);
+
+      setTimeout(() => {
+        const idx = getCurrentIndex();
+        const prev = chapterWords[idx];
+        if (autoPronounce && prev?.word) {
+          speakText(prev.word);
+        }
+      }, 200);
     } else {
       setNextChapterDirection('prev');
       setShowConfirmDialog(true);
@@ -160,12 +191,12 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   const parseMeanings = (pos, meaning) => {
     if (!meaning) return [];
-    
+
     const meanings = [];
-    const parts = meaning.split(',').map(m => m.trim());
-    
+    const parts = meaning.split(',').map((m) => m.trim());
+
     if (pos && pos.includes(',')) {
-      const posList = pos.split(',').map(p => p.trim());
+      const posList = pos.split(',').map((p) => p.trim());
       posList.forEach((p, index) => {
         if (parts[index]) {
           meanings.push({ pos: p, meaning: parts[index] });
@@ -176,7 +207,7 @@ function Review({ chapter, setChapter, maxChapter }) {
     } else {
       meanings.push({ pos: '', meaning });
     }
-    
+
     return meanings;
   };
 
@@ -185,17 +216,17 @@ function Review({ chapter, setChapter, maxChapter }) {
   const handleCardClick = () => {
     if (!showContent) {
       setShowContent(true);
+      // 뜻/예문이 나올 때 영어 발음 (예문 우선, 없으면 단어)
+      if (autoPronounce) {
+        if (currentWord.example) {
+          speakText(currentWord.example);
+        } else if (currentWord.word) {
+          speakText(currentWord.word);
+        }
+      }
     } else {
       handleNextWord();
     }
-  };
-
-  const handleReviewModeChange = (e) => {
-    setReviewMode(e.target.value);
-    setShowContent(false);
-    setCurrentWordIndex(0);
-    setStudiedWords(new Set());
-    setShowSettings(false);
   };
 
   const handleTouchStart = (e) => {
@@ -231,10 +262,10 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   const handleModalTouchEnd = (e) => {
     setModalTouchEnd(e.changedTouches[0].clientX);
-    
+
     const swipeDistance = modalTouchStart - e.changedTouches[0].clientX;
     const minSwipeDistance = 50;
-    
+
     if (Math.abs(swipeDistance) > minSwipeDistance) {
       if (swipeDistance > 0) {
         // 왼쪽으로 스와이프 -> 다음 페이지
@@ -265,9 +296,20 @@ function Review({ chapter, setChapter, maxChapter }) {
           랜덤 : {isRandomMode ? 'ON' : 'OFF'}
         </button>
 
+        {/* 자동 발음 토글 */}
+        <button
+          className="review-auto-btn-outside"
+          onClick={() => setAutoPronounce((prev) => !prev)}
+        >
+          🔊 자동: {autoPronounce ? 'ON' : 'OFF'}
+        </button>
+
         <button
           className="review-settings-btn-outside"
-          onClick={() => setShowSettings(!showSettings)}
+          onClick={() => {
+            setTempReviewMode(reviewMode);
+            setShowSettings(true);
+          }}
         >
           ⚙️
         </button>
@@ -275,13 +317,38 @@ function Review({ chapter, setChapter, maxChapter }) {
 
       {/* 설정 패널 */}
       {showSettings && (
-        <div className="review-settings-panel" onClick={(e) => e.stopPropagation()}>
-          <div className="setting-item">
+        <div
+          className="review-settings-panel"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            className="settings-close-btn"
+            onClick={() => setShowSettings(false)}
+          >
+            ✕
+          </button>
+
+          <div className="setting-item review-setting-item-row">
             <label>학습 모드:</label>
-            <select value={reviewMode} onChange={handleReviewModeChange}>
+            <select
+              value={tempReviewMode}
+              onChange={(e) => setTempReviewMode(e.target.value)}
+            >
               <option value="word-first">단어 → 뜻</option>
               <option value="meaning-first">뜻 → 단어</option>
             </select>
+            <button
+              className="settings-apply-btn"
+              onClick={() => {
+                setReviewMode(tempReviewMode);
+                setShowContent(false);
+                setCurrentWordIndex(0);
+                setStudiedWords(new Set());
+                setShowSettings(false);
+              }}
+            >
+              적용
+            </button>
           </div>
         </div>
       )}
@@ -297,26 +364,30 @@ function Review({ chapter, setChapter, maxChapter }) {
         {/* 단어 먼저 모드 */}
         {reviewMode === 'word-first' && (
           <div className="review-content-top">
-            <div className="flashcard-word">{currentWord.word || 'No word'}</div>
-            
+            <div className="flashcard-word">
+              {currentWord.word || 'No word'}
+            </div>
+
             {showContent && (
               <>
                 <div className="flashcard-meanings">
                   {meanings.map((m, index) => (
                     <div key={index} className="flashcard-meaning">
-                      {m.pos && <span className="pos-tag">{m.pos}</span>} {m.meaning}
+                      {m.pos && <span className="pos-tag">{m.pos}</span>}{' '}
+                      {m.meaning}
                     </div>
                   ))}
                 </div>
 
-                {/* 예문 */}
                 {(currentWord.example || currentWord.exampleMeaning) && (
                   <div className="flashcard-example-inline">
                     {currentWord.example && (
                       <div className="example-en">{currentWord.example}</div>
                     )}
                     {currentWord.exampleMeaning && (
-                      <div className="example-ko">{currentWord.exampleMeaning}</div>
+                      <div className="example-ko">
+                        {currentWord.exampleMeaning}
+                      </div>
                     )}
                   </div>
                 )}
@@ -331,23 +402,27 @@ function Review({ chapter, setChapter, maxChapter }) {
             <div className="flashcard-meanings meanings-first">
               {meanings.map((m, index) => (
                 <div key={index} className="flashcard-meaning">
-                  {m.pos && <span className="pos-tag">{m.pos}</span>} {m.meaning}
+                  {m.pos && <span className="pos-tag">{m.pos}</span>}{' '}
+                  {m.meaning}
                 </div>
               ))}
             </div>
-            
+
             {showContent && (
               <>
-                <div className="flashcard-word">{currentWord.word || 'No word'}</div>
+                <div className="flashcard-word">
+                  {currentWord.word || 'No word'}
+                </div>
 
-                {/* 예문 */}
                 {(currentWord.example || currentWord.exampleMeaning) && (
                   <div className="flashcard-example-inline">
                     {currentWord.example && (
                       <div className="example-en">{currentWord.example}</div>
                     )}
                     {currentWord.exampleMeaning && (
-                      <div className="example-ko">{currentWord.exampleMeaning}</div>
+                      <div className="example-ko">
+                        {currentWord.exampleMeaning}
+                      </div>
                     )}
                   </div>
                 )}
@@ -410,7 +485,10 @@ function Review({ chapter, setChapter, maxChapter }) {
 
       {/* 챕터 끝 다이얼로그 */}
       {showEndDialog && (
-        <div className="end-dialog-backdrop" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="end-dialog-backdrop"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="end-dialog">
             <h3>챕터 완료!</h3>
             <p>모든 단어를 학습했습니다.</p>
@@ -434,8 +512,8 @@ function Review({ chapter, setChapter, maxChapter }) {
           className="chapter-modal-backdrop"
           onClick={() => setShowChapterModal(false)}
         >
-          <div 
-            className="chapter-modal" 
+          <div
+            className="chapter-modal"
             onClick={(e) => e.stopPropagation()}
             onTouchStart={handleModalTouchStart}
             onTouchEnd={handleModalTouchEnd}
