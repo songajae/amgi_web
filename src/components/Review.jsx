@@ -29,7 +29,7 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   const CHAPTERS_PER_PAGE = 20; // 2열 x 10행
 
-  // TTS 함수
+  // TTS 함수: 한 문장 읽기
   const speakText = (text) => {
     if (!text || !window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(text);
@@ -38,6 +38,29 @@ function Review({ chapter, setChapter, maxChapter }) {
     utterance.volume = 1;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
+  };
+
+  // 단어 + 예문을 순서대로 읽기 (뜻→단어 모드에서 사용)
+  const speakWordThenExample = (wordText, exampleText, enableExample) => {
+    if (!wordText || !autoPronounce || !window.speechSynthesis) return;
+
+    const wordUtter = new SpeechSynthesisUtterance(wordText);
+    wordUtter.lang = 'en-US';
+    wordUtter.rate = 0.95;
+    wordUtter.volume = 1;
+
+    wordUtter.onend = () => {
+      if (enableExample && exampleText && autoPronounce) {
+        const exUtter = new SpeechSynthesisUtterance(exampleText);
+        exUtter.lang = 'en-US';
+        exUtter.rate = 0.95;
+        exUtter.volume = 1;
+        window.speechSynthesis.speak(exUtter);
+      }
+    };
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(wordUtter);
   };
 
   const chapterWords = useMemo(
@@ -82,7 +105,7 @@ function Review({ chapter, setChapter, maxChapter }) {
     if (reviewMode === 'word-first') {
       speakText(firstWord.word);
     } else if (reviewMode === 'meaning-first') {
-      // 뜻 먼저 모드는 처음엔 무음
+      // 뜻 먼저 모드: 처음엔 무음
     }
   }, [chapterWords, isRandomMode, randomIndices, reviewMode, autoPronounce]);
 
@@ -262,16 +285,17 @@ function Review({ chapter, setChapter, maxChapter }) {
       if (!autoPronounce) return;
 
       if (reviewMode === 'word-first') {
+        // 단어→뜻: 예문만
         if (pronounceExample && currentWord.example) {
           speakText(currentWord.example);
         }
       } else if (reviewMode === 'meaning-first') {
-        if (currentWord.word) {
-          speakText(currentWord.word);
-        }
-        if (pronounceExample && currentWord.example) {
-          speakText(currentWord.example);
-        }
+        // 뜻→단어: 단어 먼저, 끝나면 예문
+        speakWordThenExample(
+          currentWord.word,
+          currentWord.example,
+          pronounceExample
+        );
       }
     } else {
       handleNextWord();
@@ -328,7 +352,6 @@ function Review({ chapter, setChapter, maxChapter }) {
   const handleReviewModeToggleClick = () => {
     setTempReviewMode((prev) => {
       const next = prev === 'word-first' ? 'meaning-first' : 'word-first';
-      // 즉시 실제 모드에도 반영
       setReviewMode(next);
       setShowContent(false);
       setCurrentWordIndex(0);
@@ -337,7 +360,6 @@ function Review({ chapter, setChapter, maxChapter }) {
     });
   };
 
-  // 스피커 아이콘 (전체 소리 ON/OFF)
   const speakerIcon = autoPronounce ? '🔊' : '🔇';
 
   return (
@@ -359,7 +381,7 @@ function Review({ chapter, setChapter, maxChapter }) {
           랜덤 : {isRandomMode ? 'ON' : 'OFF'}
         </button>
 
-        {/* 스피커 토글 버튼: 소리 ON/OFF */}
+        {/* 스피커 토글 버튼 */}
         <button
           className="review-auto-btn-outside"
           onClick={() => setAutoPronounce((prev) => !prev)}
@@ -396,8 +418,6 @@ function Review({ chapter, setChapter, maxChapter }) {
 
           <div className="setting-item review-setting-item-row">
             <span className="review-setting-label">학습 모드:</span>
-
-            {/* 토글 버튼: 단어→뜻 / 뜻→단어, 누르면 즉시 적용 */}
             <button
               className="review-mode-toggle-btn"
               onClick={handleReviewModeToggleClick}
@@ -406,7 +426,6 @@ function Review({ chapter, setChapter, maxChapter }) {
             </button>
           </div>
 
-          {/* 예문 발음 ON/OFF */}
           <div className="setting-item review-setting-item-row">
             <span className="review-setting-label">예문 발음:</span>
             <button
