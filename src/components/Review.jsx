@@ -19,7 +19,8 @@ function Review({ chapter, setChapter, maxChapter }) {
   const [modalTouchStart, setModalTouchStart] = useState(0);
   const [modalTouchEnd, setModalTouchEnd] = useState(0);
 
-  const [autoPronounce, setAutoPronounce] = useState(true); // TTS 자동 여부
+  const [autoPronounce, setAutoPronounce] = useState(true); // 전체 소리 ON/OFF
+  const [pronounceExample, setPronounceExample] = useState(true); // 예문 발음 ON/OFF
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -94,13 +95,21 @@ function Review({ chapter, setChapter, maxChapter }) {
         setShowEndDialog(true);
       }
 
+      // 다음 단어로 넘어갈 때의 발음 규칙
       const realIndex =
         isRandomMode && randomIndices.length > 0
           ? randomIndices[nextIdx]
           : nextIdx;
       const nextWord = chapterWords[realIndex];
+
       if (autoPronounce && nextWord?.word) {
-        speakText(nextWord.word);
+        if (reviewMode === 'word-first') {
+          // 1. 단어->뜻 모드: 단어 화면에서 단어만 발음
+          speakText(nextWord.word);
+        } else if (reviewMode === 'meaning-first') {
+          // 2. 뜻->단어 모드: 뜻 화면에서는 소리 없음 (여기는 단어 화면 진입 전)
+          // 아무 것도 하지 않음
+        }
       }
     } else {
       setNextChapterDirection('next');
@@ -119,8 +128,13 @@ function Review({ chapter, setChapter, maxChapter }) {
           ? randomIndices[prevIdx]
           : prevIdx;
       const prevWord = chapterWords[realIndex];
+
       if (autoPronounce && prevWord?.word) {
-        speakText(prevWord.word);
+        if (reviewMode === 'word-first') {
+          speakText(prevWord.word);
+        } else if (reviewMode === 'meaning-first') {
+          // 뜻 먼저 모드에서는 의미 화면 진입 시 발음 없음
+        }
       }
     } else {
       setNextChapterDirection('prev');
@@ -219,11 +233,26 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   const meanings = parseMeanings(currentWord.pos, currentWord.meaning);
 
+  // 카드 탭 시 발음 규칙
   const handleCardClick = () => {
     if (!showContent) {
       setShowContent(true);
-      if (autoPronounce && currentWord.word) {
-        speakText(currentWord.word);
+
+      if (!autoPronounce) return;
+
+      if (reviewMode === 'word-first') {
+        // 1. 단어->뜻 모드: 예문이 나올 때 예문만 발음 (예문 없으면 아무 것도 안 함)
+        if (pronounceExample && currentWord.example) {
+          speakText(currentWord.example);
+        }
+      } else if (reviewMode === 'meaning-first') {
+        // 2. 뜻->단어 모드: 단어 화면으로 넘어갈 때 단어 + 예문 발음
+        if (currentWord.word) {
+          speakText(currentWord.word);
+        }
+        if (pronounceExample && currentWord.example) {
+          speakText(currentWord.example);
+        }
       }
     } else {
       handleNextWord();
@@ -283,6 +312,9 @@ function Review({ chapter, setChapter, maxChapter }) {
     );
   };
 
+  // 스피커 아이콘 (전체 소리 ON/OFF)
+  const speakerIcon = autoPronounce ? '🔊' : '🔇';
+
   return (
     <div className="review-container">
       {/* 상단 컨트롤 바 (박스 밖) */}
@@ -302,11 +334,12 @@ function Review({ chapter, setChapter, maxChapter }) {
           랜덤 : {isRandomMode ? 'ON' : 'OFF'}
         </button>
 
+        {/* 스피커 토글 버튼: 소리 ON/OFF */}
         <button
           className="review-auto-btn-outside"
           onClick={() => setAutoPronounce((prev) => !prev)}
         >
-          🔊 자동: {autoPronounce ? 'ON' : 'OFF'}
+          {speakerIcon}
         </button>
 
         <button
@@ -358,6 +391,17 @@ function Review({ chapter, setChapter, maxChapter }) {
               }}
             >
               적용
+            </button>
+          </div>
+
+          {/* 예문 발음 ON/OFF */}
+          <div className="setting-item review-setting-item-row">
+            <span className="review-setting-label">예문 발음:</span>
+            <button
+              className="review-mode-toggle-btn"
+              onClick={() => setPronounceExample((prev) => !prev)}
+            >
+              {pronounceExample ? 'ON' : 'OFF'}
             </button>
           </div>
         </div>
