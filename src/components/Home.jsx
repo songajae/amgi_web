@@ -1,4 +1,3 @@
-// src/components/Home.jsx
 import { useState, useEffect, useMemo, useRef } from 'react';
 import words from '../data/words.json';
 import youtubeData from '../data/youtube.json';
@@ -56,8 +55,6 @@ function Home({ chapter, setChapter, maxChapter }) {
 
     return () => clearInterval(timer);
   }, [isAutoPlay, autoPlayInterval, chapterWords.length]);
-
-
 
   // YouTube oEmbed API로 비디오 정보 가져오기
   useEffect(() => {
@@ -128,12 +125,12 @@ function Home({ chapter, setChapter, maxChapter }) {
   // pos와 meaning 파싱
   const parseMeanings = (pos, meaning) => {
     if (!meaning) return [];
-    
+
     const meanings = [];
-    const parts = meaning.split(',').map(m => m.trim());
-    
+    const parts = meaning.split(',').map((m) => m.trim());
+
     if (pos && pos.includes(',')) {
-      const posList = pos.split(',').map(p => p.trim());
+      const posList = pos.split(',').map((p) => p.trim());
       posList.forEach((p, index) => {
         if (parts[index]) {
           meanings.push({ pos: p, meaning: parts[index] });
@@ -144,7 +141,7 @@ function Home({ chapter, setChapter, maxChapter }) {
     } else {
       meanings.push({ pos: '', meaning });
     }
-    
+
     return meanings;
   };
 
@@ -197,7 +194,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           className="home-autoplay-btn"
           onClick={() => setIsAutoPlay((prev) => !prev)}
         >
-          {isAutoPlay ? '⏸ 자동재생 중지' : '▶ 자동재생 시작'}
+          {isAutoPlay ? '⏸' : '▶'}
         </button>
 
         <button
@@ -208,7 +205,6 @@ function Home({ chapter, setChapter, maxChapter }) {
         </button>
       </div>
 
-
       {/* 단어 카드 */}
       <div
         className="flashcard"
@@ -216,9 +212,6 @@ function Home({ chapter, setChapter, maxChapter }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-
-
-
         {/* 설정 패널 */}
         {showSettings && (
           <div className="settings-panel">
@@ -243,8 +236,6 @@ function Home({ chapter, setChapter, maxChapter }) {
             </div>
           </div>
         )}
-
-
 
         {/* 단어: 항상 표시 */}
         <div className="flashcard-word">{currentWord.word || 'No word'}</div>
@@ -283,8 +274,6 @@ function Home({ chapter, setChapter, maxChapter }) {
           </button>
         </div>
       </div>
-
-
 
       {/* 유튜브 영상 */}
       {youtubeData?.videoId && (
@@ -376,25 +365,24 @@ function Home({ chapter, setChapter, maxChapter }) {
             </div>
 
             <div className="chapter-modal-page-buttons">
-            <button
-              onClick={() => setChapterPage((p) => Math.max(1, p - 1))}
-              disabled={chapterPage === 1}
-            >
-              ◀
-            </button>
-            <button
-              onClick={() => setChapterPage((p) => Math.min(chapterTotalPages, p + 1))}
-              disabled={chapterPage >= chapterTotalPages}
-            >
-              ▶
-            </button>
-          </div>
-
+              <button
+                onClick={() => setChapterPage((p) => Math.max(1, p - 1))}
+                disabled={chapterPage === 1}
+              >
+                ◀
+              </button>
+              <button
+                onClick={() =>
+                  setChapterPage((p) => Math.min(chapterTotalPages, p + 1))
+                }
+                disabled={chapterPage >= chapterTotalPages}
+              >
+                ▶
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-
     </div>
   );
 }
