@@ -364,8 +364,9 @@ function Review({ chapter, setChapter, maxChapter }) {
 
   return (
     <div className="review-container">
-      {/* 상단 컨트롤 바 (박스 밖) */}
+      {/* 상단 컨트롤 바 */}
       <div className="review-controls">
+        {/* 왼쪽 Level 버튼 */}
         <button
           className="review-level-btn-outside"
           onClick={openChapterModal}
@@ -374,34 +375,33 @@ function Review({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
-        <button
-          className={`review-random-btn-outside ${
-            isRandomMode ? '' : 'review-random-off'
-          }`}
-          onClick={handleRandomModeToggle}
-        >
-          랜덤
-        </button>
+        {/* 오른쪽 아이콘 묶음: 랜덤 / 스피커 / 설정 */}
+        <div className="review-right-buttons">
+          <button
+            className={`review-random-btn-outside ${
+              isRandomMode ? '' : 'review-random-off'
+            }`}
+            onClick={handleRandomModeToggle}
+          >
+            랜덤
+          </button>
 
+          <button
+            className="review-auto-btn-outside"
+            onClick={() => setAutoPronounce((prev) => !prev)}
+          >
+            {autoPronounce ? '🔊' : '🔇'}
+          </button>
 
-        {/* 스피커 토글 버튼 */}
-        <button
-          className="review-auto-btn-outside"
-          onClick={() => setAutoPronounce((prev) => !prev)}
-        >
-          {speakerIcon}
-        </button>
-
-        <button
-          className="review-settings-btn-outside"
-          onClick={() => {
-            setTempReviewMode(reviewMode);
-            setShowSettings(true);
-          }}
-        >
-          ⚙️
-        </button>
+          <button
+            className="review-settings-btn-outside"
+            onClick={() => setShowSettings((prev) => !prev)}
+          >
+            ⚙️
+          </button>
+        </div>
       </div>
+
 
       {/* 설정 패널 */}
       {showSettings && (

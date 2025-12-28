@@ -571,11 +571,18 @@ body {
 /* 상단 컨트롤 바 */
 .review-controls {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
+
+/* 새로 추가 */
+.review-right-buttons {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;  /* Level 버튼 기준으로 오른쪽 끝으로 밀기 */
+}
+
 
 /* 랜덤 버튼 */
 .review-random-btn-outside {
