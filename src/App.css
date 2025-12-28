@@ -585,10 +585,10 @@ body {
   color: #ffffff;
   font-size: 13px;
   cursor: pointer;
-  padding: 6px 12px;
+  padding: 4px 8px;     /* 좌우 여백 줄이기 */
   white-space: nowrap;
-  flex: 1;
-  max-width: 200px;
+  flex: 0;              /* flex:1 제거, 내용만큼만 */
+  max-width: none;      /* 최대 폭 제한 제거 */
 }
 
 /* 설정 버튼 */
