@@ -434,7 +434,7 @@ body {
   gap: 6px;
 }
 
-/* 홈 상단 공통 아이콘 버튼 (스피커/플레이/셋팅) */
+/* 홈 상단 공통 아이콘 버튼 (스피커/플레이) */
 .home-icon-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -442,12 +442,14 @@ body {
   color: #ffffff;
   font-size: 18px;
   cursor: pointer;
-  padding: 6px 8px;
+  width: 32px;          /* 고정 폭 */
+  height: 32px;         /* 고정 높이 */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
+  padding: 0;           /* 내부 여백은 0, 가운데 정렬만 */
 }
+
 
 /* 홈 전용 버튼 클래스(필요시 추가 커스터마이징용) */
 .home-autoplay-btn {}
