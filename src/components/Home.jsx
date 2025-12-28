@@ -13,8 +13,11 @@ function Home({ chapter, setChapter, maxChapter }) {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [showDetail, setShowDetail] = useState(false); // 단어만 / 단어+뜻·예문 토글
 
-  // 🔊 홈 TTS on/off (복습 autoPronounce와 같은 역할)
+  // 🔊 홈 TTS on/off
   const [isSoundOn, setIsSoundOn] = useState(true);
+
+  // 설정 모달 열렸을 때 자동재생 일시정지용
+  const [savedAutoPlay, setSavedAutoPlay] = useState(true);
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -129,6 +132,22 @@ function Home({ chapter, setChapter, maxChapter }) {
     setShowChapterModal(true);
   };
 
+  // 설정 모달 열기/닫기 시 자동재생 일시정지/복원
+  const handleToggleSettings = () => {
+    setShowSettings((prev) => {
+      const next = !prev;
+      if (next) {
+        // 모달이 열릴 때 현재 자동재생 상태 저장 후 정지
+        setSavedAutoPlay(isAutoPlay);
+        setIsAutoPlay(false);
+      } else {
+        // 모달이 닫힐 때 저장된 상태 복원
+        setIsAutoPlay(savedAutoPlay);
+      }
+      return next;
+    });
+  };
+
   // 챕터 리스트
   const chapterList = Array.from({ length: maxChapter }, (_, i) => i + 1);
   const chapterTotalPages = Math.max(
@@ -198,15 +217,14 @@ function Home({ chapter, setChapter, maxChapter }) {
 
   const speakerIcon = isSoundOn ? '🔊' : '🔇';
 
-  // ▶ / ⏸ 대신 고정 폭에 가까운 아이콘 사용
-  const playIcon = isAutoPlay ? '⏹' : '▶'; // 정지(■) 또는 ▶
-  // 원하시면 둘 다 박스형으로: const playIcon = isAutoPlay ? '⏹' : '⏵';
+  // ▶ / ■ 아이콘 사용
+  const playIcon = isAutoPlay ? '■' : '▶';
 
   return (
     <div className="home-container">
       {/* 상단 컨트롤 바 (박스 밖) */}
       <div className="home-controls">
-        {/* 왼쪽 Level 버튼 (복습과 동일 스타일) */}
+        {/* 왼쪽 Level 버튼 */}
         <button
           className="review-level-btn-outside"
           onClick={openChapterModal}
@@ -215,9 +233,9 @@ function Home({ chapter, setChapter, maxChapter }) {
           <span className="level-arrow">▼</span>
         </button>
 
-        {/* 오른쪽: 스피커 / 플레이 / 설정 (배치는 그대로) */}
+        {/* 오른쪽: 스피커 / 플레이 / 설정 */}
         <div className="home-right-buttons">
-          {/* 홈 자동 발음 스피커 */}
+          {/* 자동 발음 스피커 */}
           <button
             className="home-icon-btn home-sound-btn"
             onClick={() => setIsSoundOn((prev) => !prev)}
@@ -225,7 +243,7 @@ function Home({ chapter, setChapter, maxChapter }) {
             {speakerIcon}
           </button>
 
-          {/* 홈 자동재생 아이콘 (크기 일정하게 유지) */}
+          {/* 자동재생 ▶ / ■ (버튼 크기는 CSS로 고정) */}
           <button
             className="home-icon-btn home-autoplay-btn"
             onClick={() => setIsAutoPlay((prev) => !prev)}
@@ -233,10 +251,10 @@ function Home({ chapter, setChapter, maxChapter }) {
             {playIcon}
           </button>
 
-          {/* ⚙ 설정 (아이콘만) */}
+          {/* ⚙ 설정 (모달 열고 닫을 때 자동재생 일시정지/복원) */}
           <button
             className="review-settings-btn-outside"
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={handleToggleSettings}
           >
             ⚙️
           </button>
@@ -255,7 +273,7 @@ function Home({ chapter, setChapter, maxChapter }) {
           <div className="settings-panel">
             <button
               className="settings-close-btn"
-              onClick={() => setShowSettings(false)}
+              onClick={handleToggleSettings}
             >
               ✕
             </button>
@@ -369,12 +387,10 @@ function Home({ chapter, setChapter, maxChapter }) {
 
               if (Math.abs(swipeDistanceX) > minSwipeDistance) {
                 if (swipeDistanceX > 0) {
-                  // 왼쪽 스와이프 = 다음 페이지 (마지막이면 1페이지로 순환)
                   setChapterPage((prev) =>
                     prev >= chapterTotalPages ? 1 : prev + 1
                   );
                 } else {
-                  // 오른쪽 스와이프 = 이전 페이지 (1페이지면 마지막 페이지로 순환)
                   setChapterPage((prev) =>
                     prev <= 1 ? chapterTotalPages : prev - 1
                   );
