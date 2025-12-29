@@ -1,5 +1,5 @@
-// 전체 소스 코드 (주석 복원 + TTS 변경 적용 완료)
-import { useState, useEffect, useMemo, useRef } from 'react';
+// 전체 소스 코드 (TTS 타이밍 + 자동재생 동기화 완료)
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import words from '../data/words.json';
 import youtubeData from '../data/youtube.json';
 
@@ -24,6 +24,10 @@ function Home({ chapter, setChapter, maxChapter }) {
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
+  // TTS 완료 대기용
+  const ttsQueueRef = useRef([]);
+  const isSpeakingRef = useRef(false);
+
   const CHAPTERS_PER_PAGE = 20;
 
   // 현재 챕터의 단어들
@@ -40,60 +44,111 @@ function Home({ chapter, setChapter, maxChapter }) {
     setShowDetail(false); // 항상 단어만부터 시작
   }, [chapter]);
 
-  // 🔊 변경: 단어가 바뀔 때 단어 + 뜻 TTS 재생 (예문 제외)
-  useEffect(() => {
-    if (!isSoundOn) return;
-    if (!currentWord.word) return;
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  // pos와 meaning 파싱
+  const parseMeanings = useCallback((pos, meaning) => {
+    if (!meaning) return [];
 
-    window.speechSynthesis.cancel();
+    const meanings = [];
+    const parts = meaning.split(',').map((m) => m.trim());
 
-    // 1. 단어 TTS
-    const wordUtter = new SpeechSynthesisUtterance(currentWord.word);
-    wordUtter.lang = 'en-US';
-    wordUtter.rate = 0.95;
-    wordUtter.volume = 1;
-
-    // 2. 뜻 TTS (의미 배열 순차 재생)
-    const speakMeanings = () => {
-      const meanings = parseMeanings(currentWord.pos, currentWord.meaning);
-      meanings.forEach((m) => {
-        const meaningUtter = new SpeechSynthesisUtterance(m.meaning);
-        meaningUtter.lang = 'ko-KR'; // 한국어 발음
-        meaningUtter.rate = 0.9;
-        meaningUtter.volume = 0.8;
-        window.speechSynthesis.speak(meaningUtter);
+    if (pos && pos.includes(',')) {
+      const posList = pos.split(',').map((p) => p.trim());
+      posList.forEach((p, index) => {
+        if (parts[index]) {
+          meanings.push({ pos: p, meaning: parts[index] });
+        }
       });
-    };
+    } else if (pos) {
+      meanings.push({ pos, meaning });
+    } else {
+      meanings.push({ pos: '', meaning });
+    }
 
-    window.speechSynthesis.speak(wordUtter);
-    wordUtter.onend = speakMeanings; // 단어 끝나면 뜻 재생
-  }, [currentWord.word, currentWord.pos, currentWord.meaning, isSoundOn]);
+    return meanings;
+  }, []);
 
-  // 자동 재생 기능: 단어 -> 단어+뜻/예문 -> 다음 단어 -> ...
+  // TTS 큐에 추가
+  const speakText = useCallback((text, lang = 'en-US', rate = 0.95, volume = 1) => {
+    return new Promise((resolve) => {
+      if (!isSoundOn || typeof window === 'undefined' || !window.speechSynthesis) {
+        resolve();
+        return;
+      }
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = lang;
+      utter.rate = rate;
+      utter.volume = volume;
+
+      utter.onend = () => {
+        isSpeakingRef.current = false;
+        resolve();
+      };
+
+      utter.onerror = () => {
+        isSpeakingRef.current = false;
+        resolve();
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+      isSpeakingRef.current = true;
+    });
+  }, [isSoundOn]);
+
+  // 단어 + 뜻 TTS 재생 (완료 Promise 반환)
+  const speakCurrentWordFull = useCallback(async () => {
+    if (!currentWord.word) return Promise.resolve();
+
+    // 1. 단어 TTS (100ms 딜레이 후 시작)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await speakText(currentWord.word, 'en-US', 0.95, 1);
+
+    // 2. 뜻 TTS (각 뜻 사이 300ms 딜레이)
+    const meanings = parseMeanings(currentWord.pos, currentWord.meaning);
+    for (const m of meanings) {
+      await speakText(m.meaning, 'ko-KR', 0.9, 0.8);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+  }, [currentWord.word, currentWord.pos, currentWord.meaning, parseMeanings, speakText]);
+
+  // 현재 상태 변경 시 TTS 실행
+  useEffect(() => {
+    if (!isSoundOn || !currentWord.word) return;
+
+    speakCurrentWordFull();
+  }, [showDetail, currentWordIndex, speakCurrentWordFull]);
+
+  // 자동 재생 기능: TTS 완료 후 다음 단계로 진행
   useEffect(() => {
     if (!isAutoPlay || chapterWords.length === 0) return;
 
-    const timer = setInterval(() => {
+    let timer;
+
+    const advanceAutoPlay = async () => {
+      // TTS 완료 대기
+      await speakCurrentWordFull();
+
+      // 500ms 추가 대기 후 다음 단계
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       setShowDetail((prevDetail) => {
         if (!prevDetail) {
           // 1단계: 단어만 → 단어+뜻/예문
           return true;
         } else {
           // 2단계: 단어+뜻/예문 → 다음 단어 (단어만)
-          setCurrentWordIndex((prev) => {
-            if (prev >= chapterWords.length - 1) {
-              return 0;
-            }
-            return prev + 1;
-          });
+          const nextIndex = currentWordIndex >= chapterWords.length - 1 ? 0 : currentWordIndex + 1;
+          setCurrentWordIndex(nextIndex);
           return false;
         }
       });
-    }, autoPlayInterval);
+    };
 
-    return () => clearInterval(timer);
-  }, [isAutoPlay, autoPlayInterval, chapterWords.length]);
+    timer = setTimeout(advanceAutoPlay, autoPlayInterval);
+
+    return () => clearTimeout(timer);
+  }, [isAutoPlay, autoPlayInterval, chapterWords.length, currentWordIndex, showDetail, speakCurrentWordFull]);
 
   // YouTube oEmbed API로 비디오 정보 가져오기
   useEffect(() => {
@@ -174,29 +229,6 @@ function Home({ chapter, setChapter, maxChapter }) {
     startChapterIndex,
     startChapterIndex + CHAPTERS_PER_PAGE
   );
-
-  // pos와 meaning 파싱
-  const parseMeanings = (pos, meaning) => {
-    if (!meaning) return [];
-
-    const meanings = [];
-    const parts = meaning.split(',').map((m) => m.trim());
-
-    if (pos && pos.includes(',')) {
-      const posList = pos.split(',').map((p) => p.trim());
-      posList.forEach((p, index) => {
-        if (parts[index]) {
-          meanings.push({ pos: p, meaning: parts[index] });
-        }
-      });
-    } else if (pos) {
-      meanings.push({ pos, meaning });
-    } else {
-      meanings.push({ pos: '', meaning });
-    }
-
-    return meanings;
-  };
 
   const meanings = parseMeanings(currentWord.pos, currentWord.meaning);
 
