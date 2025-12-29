@@ -1,4 +1,4 @@
-// 전체 소스 코드 (TTS 반복 제거 + 타이밍 완벽 동기화)
+// 전체 소스 코드 (단어/뜻 TTS 딜레이 분리 + 정확한 타이밍)
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import words from '../data/words.json';
 import youtubeData from '../data/youtube.json';
@@ -95,23 +95,24 @@ function Home({ chapter, setChapter, maxChapter }) {
     });
   }, [isSoundOn]);
 
-  // 현재 단어 전체 TTS (단어 → 모든 뜻 순차 재생)
-  const speakCurrentWordFull = useCallback(async () => {
+  // 단어만 TTS
+  const speakWordOnly = useCallback(async () => {
     if (!currentWord.word || !isSoundOn) return;
-
-    // 1. 단어 TTS (100ms 딜레이)
-    await new Promise(r => setTimeout(r, 100));
     await speakText(currentWord.word, 'en-US', 0.95, 1);
+  }, [currentWord.word, speakText, isSoundOn]);
 
-    // 2. 모든 뜻 TTS (각각 300ms 딜레이)
+  // 뜻만 TTS (모든 뜻 순차 재생)
+  const speakMeaningsOnly = useCallback(async () => {
+    if (!currentWord.meaning || !isSoundOn) return;
     const meanings = parseMeanings(currentWord.pos, currentWord.meaning);
     for (const m of meanings) {
       await speakText(m.meaning, 'ko-KR', 0.9, 0.8);
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 300)); // 뜻들 사이 300ms
     }
-  }, [currentWord.word, currentWord.pos, currentWord.meaning, parseMeanings, speakText, isSoundOn]);
+  }, [currentWord.pos, currentWord.meaning, parseMeanings, speakText, isSoundOn]);
 
-  // ✅ 1. 자동재생: autoPlayInterval 딜레이 후 TTS 완료 대기 → 상태 변경
+  // ✅ 1. 단어→뜻: 단어 TTS바로 → autoPlayInterval 딜레이 → 뜻 TTS → 완료 후 다음단어
+  // ✅ 2. 뜻→단어: 뜻 TTS바로 → autoPlayInterval 딜레이 → 단어 TTS → 완료 후 다음단어
   useEffect(() => {
     if (!isAutoPlay || chapterWords.length === 0) {
       if (autoPlayTimerRef.current) {
@@ -126,26 +127,29 @@ function Home({ chapter, setChapter, maxChapter }) {
       clearTimeout(autoPlayTimerRef.current);
     }
 
-    // autoPlayInterval 후 TTS 완료 대기 → 상태 변경
     autoPlayTimerRef.current = setTimeout(async () => {
-      // 현재 상태 TTS 완료 대기
-      await speakCurrentWordFull();
-      
-      // 500ms 여유 후 상태 전환
-      await new Promise(r => setTimeout(r, 500));
+      // 현재 상태에 맞는 TTS 즉시 실행
+      if (!showDetail) {
+        // 1. 단어만 상태: 단어 TTS 바로 → 딜레이 → showDetail=true (뜻 표시)
+        await speakWordOnly();
+      } else {
+        // 2. 뜻 상태: 뜻 TTS 바로 → 딜레이 → 다음단어 + showDetail=false
+        await speakMeaningsOnly();
+        const nextIndex = currentWordIndex >= chapterWords.length - 1 ? 0 : currentWordIndex + 1;
+        setCurrentWordIndex(nextIndex);
+        setShowDetail(false);
+        return; // 다음단어로 넘어갔으므로 여기서 종료
+      }
 
-      setShowDetail(prevDetail => {
-        if (!prevDetail) {
-          // 단어 → 뜻 표시
-          return true;
-        } else {
-          // 뜻 → 다음 단어
-          const nextIndex = currentWordIndex >= chapterWords.length - 1 ? 0 : currentWordIndex + 1;
-          setCurrentWordIndex(nextIndex);
-          return false;
-        }
-      });
-    }, autoPlayInterval);
+      // 500ms 여유 + 설정된 딜레이 적용
+      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, autoPlayInterval));
+
+      // 상태 전환
+      if (showDetail === false) {
+        setShowDetail(true); // 단어 → 뜻 표시
+      }
+    }, 0); // 즉시 시작 (딜레이는 내부에서 처리)
 
     return () => {
       if (autoPlayTimerRef.current) {
@@ -153,9 +157,7 @@ function Home({ chapter, setChapter, maxChapter }) {
         autoPlayTimerRef.current = null;
       }
     };
-  }, [isAutoPlay, autoPlayInterval, chapterWords.length, currentWordIndex, showDetail, speakCurrentWordFull]);
-
-  // 기존 TTS useEffect 완전 제거 (반복 방지)
+  }, [isAutoPlay, autoPlayInterval, chapterWords.length, currentWordIndex, showDetail, speakWordOnly, speakMeaningsOnly]);
 
   // YouTube oEmbed API로 비디오 정보 가져오기
   useEffect(() => {
