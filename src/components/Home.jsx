@@ -1,4 +1,4 @@
-// src/components/Home.jsx
+// 전체 소스 코드 (주석 복원 + TTS 변경 적용 완료)
 import { useState, useEffect, useMemo, useRef } from 'react';
 import words from '../data/words.json';
 import youtubeData from '../data/youtube.json';
@@ -40,20 +40,35 @@ function Home({ chapter, setChapter, maxChapter }) {
     setShowDetail(false); // 항상 단어만부터 시작
   }, [chapter]);
 
-  // 🔊 단어가 바뀔 때 TTS 재생 (sound on일 때만)
+  // 🔊 변경: 단어가 바뀔 때 단어 + 뜻 TTS 재생 (예문 제외)
   useEffect(() => {
     if (!isSoundOn) return;
     if (!currentWord.word) return;
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
-    const utter = new SpeechSynthesisUtterance(currentWord.word);
-    utter.lang = 'en-US';
-    utter.rate = 0.95;
-    utter.volume = 1;
-
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utter);
-  }, [currentWord.word, isSoundOn]);
+
+    // 1. 단어 TTS
+    const wordUtter = new SpeechSynthesisUtterance(currentWord.word);
+    wordUtter.lang = 'en-US';
+    wordUtter.rate = 0.95;
+    wordUtter.volume = 1;
+
+    // 2. 뜻 TTS (의미 배열 순차 재생)
+    const speakMeanings = () => {
+      const meanings = parseMeanings(currentWord.pos, currentWord.meaning);
+      meanings.forEach((m) => {
+        const meaningUtter = new SpeechSynthesisUtterance(m.meaning);
+        meaningUtter.lang = 'ko-KR'; // 한국어 발음
+        meaningUtter.rate = 0.9;
+        meaningUtter.volume = 0.8;
+        window.speechSynthesis.speak(meaningUtter);
+      });
+    };
+
+    window.speechSynthesis.speak(wordUtter);
+    wordUtter.onend = speakMeanings; // 단어 끝나면 뜻 재생
+  }, [currentWord.word, currentWord.pos, currentWord.meaning, isSoundOn]);
 
   // 자동 재생 기능: 단어 -> 단어+뜻/예문 -> 다음 단어 -> ...
   useEffect(() => {
@@ -218,7 +233,7 @@ function Home({ chapter, setChapter, maxChapter }) {
   const speakerIcon = isSoundOn ? '🔊' : '🔇';
 
   // ▶ / ■ 아이콘 사용 (멈춤=■, 재생=▶)
-const playIcon = isAutoPlay ? '▶' : '■';
+  const playIcon = isAutoPlay ? '▶' : '■';
 
   return (
     <div className="home-container">
