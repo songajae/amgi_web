@@ -1,3 +1,9 @@
+// ==============================
+// 파일명 : src/components/EnglishStudy.jsx
+// 역할 : 암기송(English Study) 화면에서 유튜브 영상 재생, 현재 재생 시간 동기화, 자막 리스트 하이라이트/자동 스크롤, 챕터 선택 모달을 통합 관리하는 메인 컴포넌트
+// 수정일 : 2026-04-21
+// 수정사항: 현재 재생 자막 1개만 active 처리되도록 하이라이트 로직 개선, 자막 영역 좌우 여백 축소
+// ==============================
 // src/components/EnglishStudy.jsx
 import { useState, useEffect, useRef, useMemo } from 'react';
 import videoData from '../data/video-subtitles.json';
@@ -47,6 +53,25 @@ function EnglishStudy({ chapter, setChapter }) {
       text,
     }));
   }, [currentVideo]);
+
+  const activeSubtitleId = useMemo(() => {
+    if (subtitles.length === 0) return null; // 재생 중인 자막 id
+
+    for (let i = 0; i < subtitles.length; i += 1) {
+      const currentSubtitle = subtitles[i]; // 현재 순회 자막
+      const nextSubtitle = subtitles[i + 1]; // 다음 자막
+      const currentStart = currentSubtitle.startTime + SUBTITLE_OFFSET; // 현재 자막 시작 시간
+      const nextStart = nextSubtitle
+        ? nextSubtitle.startTime + SUBTITLE_OFFSET
+        : Number.POSITIVE_INFINITY; // 마지막 자막 보호
+
+      if (currentTime >= currentStart && currentTime < nextStart) {
+        return currentSubtitle.id;
+      }
+    }
+
+    return null;
+  }, [subtitles, currentTime]);
 
   // 챕터 리스트 (자막이 있는 챕터만)
   const chapterList = useMemo(
@@ -267,11 +292,7 @@ function EnglishStudy({ chapter, setChapter }) {
         <div className="subtitle-list-container" ref={subtitleListRef}>
           <div className="subtitle-list">
             {subtitles.map((subtitle) => {
-              const adjustedSubtitleTime =
-                subtitle.startTime + SUBTITLE_OFFSET;
-
-              const isActive =
-                Math.abs(currentTime - adjustedSubtitleTime) <= 3;
+              const isActive = subtitle.id === activeSubtitleId; // 현재 재생 자막 여부
 
               return (
                 <div

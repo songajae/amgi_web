@@ -1,3 +1,9 @@
+/* ==============================
+ * 파일명 : src/App.css
+ * 역할 : 앱 전체 공통 레이아웃, 화면별(Home/WordList/Review/EnglishStudy/About) UI 스타일, 반응형 동작 및 강조 상태(활성/비활성)를 일괄 정의하는 전역 스타일 파일
+ * 수정일 : 2026-04-21
+ * 수정사항: EnglishStudy 자막 영역 좌우 여백 축소 및 카드 내부 패딩 조정
+ * ============================== */
 /******************************************************************
  * 공통 스타일 (전체 공용)
  ******************************************************************/
@@ -1121,7 +1127,7 @@ body {
   flex: 1;
   overflow-y: auto;
   background-color: #1a1a1a;
-  padding: 12px;
+  padding: 12px 6px;
 }
 
 .subtitle-list {
@@ -1135,7 +1141,7 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 1px 12px;  /* 위아래 여백 1px로 축소 */
+  padding: 1px 10px;  /* 위아래 여백 1px로 축소 */
   background-color: #2a2a2a;
   border-radius: 8px;
   border: 2px solid transparent;
@@ -1151,7 +1157,7 @@ body {
 .subtitle-item.active {
   background-color: #ff9500;
   border-color: #ff9500;
-  padding: 1px 12px;  /* active 상태에서도 1px 유지 */
+  padding: 1px 10px;  /* active 상태에서도 1px 유지 */
 }
 
 .subtitle-item.active .subtitle-time,
