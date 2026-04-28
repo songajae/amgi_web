@@ -1,3 +1,9 @@
+// ==============================
+// 파일명 : src/App.jsx
+// 역할 : 앱의 최상위 컴포넌트로서 현재 챕터 상태와 탭 전환 상태를 공통 관리하고, 홈/단어장/복습/암기송/정보 화면에 필요한 props를 전달해 전체 학습 흐름을 연결한다.
+// 수정일 : 2026-04-28
+// 수정사항: 챕터 최대값 계산 시 단어 데이터와 암기송(video-subtitles) 데이터를 함께 반영하도록 개선
+// ==============================
 // src/App.jsx
 import { useMemo, useState } from 'react';
 import Home from './components/Home.jsx';
@@ -7,13 +13,22 @@ import About from './components/About.jsx';
 import EnglishStudy from './components/EnglishStudy.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import words from './data/words.json';
+import videoData from './data/video-subtitles.json';
 
 function App() {
   const [chapter, setChapter] = useState(1);
   const [activeTab, setActiveTab] = useState('home');
 
   const maxChapter = useMemo(
-    () => Math.max(...words.map((w) => w.chapter || 1)),
+    () => {
+      const wordMaxChapter = Math.max(...words.map((w) => w.chapter || 1)); // 단어 데이터 최대 챕터
+      const videoMaxChapter = Math.max( // 영상 데이터 최대 챕터
+        ...videoData
+          .map((video) => video.chapter)
+          .filter((chapterNum) => typeof chapterNum === 'number')
+      );
+      return Math.max(wordMaxChapter, videoMaxChapter); // 전체 최대 챕터
+    },
     []
   );
 
