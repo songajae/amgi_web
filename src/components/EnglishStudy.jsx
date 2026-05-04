@@ -1,8 +1,8 @@
 // ==============================
 // 파일명 : src/components/EnglishStudy.jsx
 // 역할 : 암기송(English Study) 화면에서 유튜브 영상 재생, 현재 재생 시간 동기화, 자막 리스트 하이라이트/자동 스크롤, 챕터 선택 모달을 통합 관리하는 메인 컴포넌트
-// 수정일 : 2026-04-21
-// 수정사항: 현재 재생 자막 1개만 active 처리되도록 하이라이트 로직 개선, 자막 영역 좌우 여백 축소
+// 수정일 : 2026-05-04
+// 수정사항: 재생 시간 추적을 소수점 두 자리 기준으로 통일해 자막 시작 시간(소수점)과 정확히 매칭되도록 개선
 // ==============================
 // src/components/EnglishStudy.jsx
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -165,6 +165,8 @@ function EnglishStudy({ chapter, setChapter }) {
     setIsPlaying(false);
   };
 
+  const normalizeVideoTime = (timeValue) => Number(timeValue.toFixed(2)); // 영상 시간을 소수점 2자리로 정규화
+
   const onPlayerStateChange = (event) => {
     if (event.data === window.YT.PlayerState.PLAYING) {
       setIsPlaying(true);
@@ -175,8 +177,8 @@ function EnglishStudy({ chapter, setChapter }) {
       setIsPlaying(false);
       if (playerRef.current && playerRef.current.getCurrentTime) {
         try {
-          const time = Math.floor(playerRef.current.getCurrentTime());
-          setCurrentTime(time);
+          const currentVideoTime = normalizeVideoTime(playerRef.current.getCurrentTime());
+          setCurrentTime(currentVideoTime);
         } catch (e) {
           // ignore
         }
@@ -196,8 +198,8 @@ function EnglishStudy({ chapter, setChapter }) {
     if (playerRef.current && playerRef.current.getCurrentTime) {
       intervalRef.current = setInterval(() => {
         try {
-          const time = Math.floor(playerRef.current.getCurrentTime());
-          setCurrentTime(time);
+          const currentVideoTime = normalizeVideoTime(playerRef.current.getCurrentTime());
+          setCurrentTime(currentVideoTime);
         } catch (error) {
           // ignore
         }
