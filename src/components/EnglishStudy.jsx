@@ -2,7 +2,7 @@
 // 파일명 : src/components/EnglishStudy.jsx
 // 역할 : 암기송(English Study) 화면에서 유튜브 영상 재생, 현재 재생 시간 동기화, 자막 리스트 하이라이트/자동 스크롤, 챕터 선택 모달을 통합 관리하는 메인 컴포넌트
 // 수정일 : 2026-05-04
-// 수정사항: 재생 시간 추적을 소수점 두 자리 기준으로 통일해 자막 시작 시간(소수점)과 정확히 매칭되도록 개선
+// 수정사항: 재생 시간 표기를 항상 00:00:00(시:분:초 두 자리) 형식으로 고정해 초 소수점 노출 문제를 수정
 // ==============================
 // src/components/EnglishStudy.jsx
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -245,13 +245,12 @@ function EnglishStudy({ chapter, setChapter }) {
 
   // 시간 포맷팅
   const formatTime = (seconds) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    if (h > 0) {
-      return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
-    return `${m}:${String(s).padStart(2, '0')}`;
+    const safeSeconds = Math.max(0, Math.floor(seconds)); // 초 단위를 정수로 보정
+    const h = Math.floor(safeSeconds / 3600); // 시간 계산
+    const m = Math.floor((safeSeconds % 3600) / 60); // 분 계산
+    const s = safeSeconds % 60; // 초 계산
+
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
   // 🔹 챕터 변경 (최대 챕터까지)
